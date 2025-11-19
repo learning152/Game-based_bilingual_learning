@@ -1,0 +1,14 @@
+{
+  "id": "english-intermediate-1",
+  "title": "英语中级课程 1",
+  "description": "提升你的英语阅读和写作能力",
+  "language": "english",
+  "lessons": [
+    "en-lesson-4",
+    "en-lesson-5",
+    "en-lesson-6",
+    "en-lesson-7"
+  ],
+  "createdAt": "2025-11-19T11:18:47.302Z",
+  "updatedAt": "2025-11-19T11:18:47.302Z"
+}

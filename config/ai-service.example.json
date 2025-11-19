@@ -1,0 +1,8 @@
+{
+  "provider": "local",
+  "apiKey": "your-api-key-here",
+  "apiEndpoint": "https://api.openai.com/v1/chat/completions",
+  "model": "gpt-4",
+  "maxRetries": 3,
+  "timeout": 10000
+}

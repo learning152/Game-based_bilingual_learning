@@ -1,0 +1,14 @@
+{
+  "id": "chinese-beginner-1",
+  "title": "中文初级课程 1",
+  "description": "学习基础汉字、简单对话和中译英练习",
+  "language": "chinese",
+  "lessons": [
+    "cn-lesson-1",
+    "cn-lesson-2",
+    "cn-lesson-3",
+    "cn-to-en-lesson-1"
+  ],
+  "createdAt": "2025-11-19T11:18:47.302Z",
+  "updatedAt": "2025-11-19T21:00:21.000Z"
+}

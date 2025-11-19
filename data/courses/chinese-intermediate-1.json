@@ -1,0 +1,13 @@
+{
+  "id": "chinese-intermediate-1",
+  "title": "中文中级课程 1",
+  "description": "提升中文阅读和写作技能",
+  "language": "chinese",
+  "lessons": [
+    "cn-lesson-4",
+    "cn-lesson-5",
+    "cn-lesson-6"
+  ],
+  "createdAt": "2025-11-19T11:18:47.302Z",
+  "updatedAt": "2025-11-19T11:18:47.302Z"
+}

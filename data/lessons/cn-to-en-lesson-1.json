@@ -1,0 +1,8 @@
+{
+  "id": "cn-to-en-lesson-1",
+  "title": "中译英基础练习 1",
+  "content": "[{\"id\":\"cte1\",\"chinesePhrase\":\"你好\",\"englishTranslation\":\"hello\",\"hint\":\"常见的问候语\"},{\"id\":\"cte2\",\"chinesePhrase\":\"谢谢\",\"englishTranslation\":\"thank you\",\"hint\":\"表示感谢\"},{\"id\":\"cte3\",\"chinesePhrase\":\"早上好\",\"englishTranslation\":\"good morning\",\"hint\":\"早晨的问候\"},{\"id\":\"cte4\",\"chinesePhrase\":\"晚安\",\"englishTranslation\":\"good night\",\"hint\":\"睡前的祝福\"},{\"id\":\"cte5\",\"chinesePhrase\":\"对不起\",\"englishTranslation\":\"sorry\",\"hint\":\"表示道歉\"}]",
+  "difficulty": "beginner",
+  "type": "vocabulary",
+  "language": "chinese"
+}

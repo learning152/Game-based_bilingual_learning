@@ -1,0 +1,13 @@
+{
+  "id": "english-beginner-1",
+  "title": "英语初级课程 1",
+  "description": "适合英语初学者的基础词汇和简单对话",
+  "language": "english",
+  "lessons": [
+    "en-lesson-1",
+    "en-lesson-2",
+    "en-lesson-3"
+  ],
+  "createdAt": "2025-11-19T11:18:47.302Z",
+  "updatedAt": "2025-11-19T11:18:47.302Z"
+}
