@@ -3,8 +3,11 @@ import { Card, Typography, List, Tag, Button, Space, Empty, message } from 'antd
 import { BookOutlined, LockOutlined, CheckCircleOutlined, RightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { CourseManager, Course } from '../models/Course';
+import { getUserLogger } from '../utils/logManager';
+import { performanceMonitor } from '../utils/performanceMonitor';
 
 const { Title, Paragraph } = Typography;
+const logger = getUserLogger();
 
 // 定义课程类型，用于UI展示
 interface CourseUIItem {
@@ -24,9 +27,13 @@ const Courses: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    logger.info('进入课程中心页面');
+    performanceMonitor.startOperation('CoursesPageLoad');
+
     // 检查用户登录状态
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
+      logger.warn('未登录用户尝试访问课程中心', { redirectTo: '/login' });
       message.warning('请先登录！');
       navigate('/login');
       return;
@@ -34,9 +41,16 @@ const Courses: React.FC = () => {
 
     // 加载课程数据
     loadCourses();
+
+    return () => {
+      performanceMonitor.endOperation('CoursesPageLoad');
+      logger.info('离开课程中心页面');
+    };
   }, [navigate]);
 
   const loadCourses = () => {
+    logger.info('开始加载课程数据');
+    performanceMonitor.startOperation('LoadCourses');
     try {
       // 从本地数据库加载课程
       const courseIds = CourseManager.listCourses();
@@ -82,13 +96,24 @@ const Courses: React.FC = () => {
 
       setEnglishCourses(english);
       setChineseCourses(chinese);
+      logger.info('课程数据加载完成', { 
+        englishCoursesCount: english.length, 
+        chineseCoursesCount: chinese.length 
+      });
     } catch (error) {
+      logger.error('加载课程失败', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
       console.error('加载课程失败:', error);
       message.error('加载课程失败，请重试！');
+    } finally {
+      performanceMonitor.endOperation('LoadCourses');
     }
   };
 
   const createSampleCourses = () => {
+    logger.info('开始创建示例课程');
+    performanceMonitor.startOperation('CreateSampleCourses');
     try {
       // 创建示例英语课程
       const englishCourse1: Course = {
@@ -181,21 +206,33 @@ const Courses: React.FC = () => {
         }
       ]);
 
+      logger.info('示例课程创建成功', { 
+        englishCoursesCount: 2, 
+        chineseCoursesCount: 2 
+      });
       message.success('已创建示例课程数据');
     } catch (error) {
+      logger.error('创建示例课程失败', { 
+        error: error instanceof Error ? error.message : String(error) 
+      });
       console.error('创建示例课程失败:', error);
       message.error('创建示例课程失败，请重试！');
+    } finally {
+      performanceMonitor.endOperation('CreateSampleCourses');
     }
   };
 
   const handleCourseClick = (courseId: string) => {
+    logger.info('用户点击课程', { courseId });
     // 后续将实现跳转到课程详情页面
     message.info(`选择了课程：${courseId}，课程详情页面即将开发`);
     // navigate(`/course/${courseId}`);
   };
 
   const renderCourseList = (courses: CourseUIItem[]) => {
+    logger.debug('渲染课程列表', { courseCount: courses.length });
     if (courses.length === 0) {
+      logger.info('课程列表为空');
       return (
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -262,13 +299,19 @@ const Courses: React.FC = () => {
         <Space size="middle">
           <Button 
             type={activeTab === 'english' ? 'primary' : 'default'}
-            onClick={() => setActiveTab('english')}
+            onClick={() => {
+              setActiveTab('english');
+              logger.info('用户切换到英语课程标签');
+            }}
           >
             英语课程
           </Button>
           <Button 
             type={activeTab === 'chinese' ? 'primary' : 'default'}
-            onClick={() => setActiveTab('chinese')}
+            onClick={() => {
+              setActiveTab('chinese');
+              logger.info('用户切换到中文课程标签');
+            }}
           >
             中文课程
           </Button>

@@ -6,8 +6,11 @@ import WordCompletion from '../components/WordCompletion';
 import ChineseToEnglish from '../components/ChineseToEnglish';
 import { CourseManager, Level } from '../models/Course';
 import { ProgressManager, UserProgress, GameSession } from '../models/Progress';
+import { getUserLogger } from '../utils/logManager';
+import { performanceMonitor } from '../utils/performanceMonitor';
 
 const { Title, Text } = Typography;
+const logger = getUserLogger();
 
 interface GameWord {
   id: string;
@@ -79,19 +82,31 @@ const Game: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    logger.info('进入游戏页面');
+    performanceMonitor.startOperation('GamePageLoad');
+
     // 检查用户登录状态
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
+      logger.warn('未登录用户尝试访问游戏页面', { redirectTo: '/login' });
       message.warning('请先登录！');
       navigate('/login');
       return;
     }
 
+    logger.info('用户登录状态验证通过，开始加载游戏', { userId: currentUser });
     // 加载关卡和用户进度
     loadLevelsAndProgress(currentUser);
+
+    return () => {
+      performanceMonitor.endOperation('GamePageLoad');
+      logger.info('离开游戏页面');
+    };
   }, [navigate]);
 
   const loadLevelsAndProgress = (userId: string) => {
+    logger.info('开始加载关卡和用户进度', { userId });
+    performanceMonitor.startOperation('LoadLevelsAndProgress');
     const loadedLevels = CourseManager.listLevels().map(levelId => CourseManager.getLevel(levelId)!);
     setLevels(loadedLevels);
 
@@ -106,11 +121,21 @@ const Game: React.FC = () => {
     const currentLevel = loadedLevels.find(level => level.id === currentLevelId);
     if (currentLevel) {
       setCurrentLevel(currentLevel);
+      logger.info('关卡和进度加载完成', { 
+        levelsCount: loadedLevels.length, 
+        currentLevelId: currentLevel.id,
+        userId 
+      });
       initializeGame(currentLevel);
+    } else {
+      logger.error('未找到当前关卡', { currentLevelId, userId });
     }
+    performanceMonitor.endOperation('LoadLevelsAndProgress');
   };
 
   const initializeGame = (level: Level) => {
+    logger.info('初始化游戏', { levelId: level.id, levelTitle: level.title });
+    performanceMonitor.startOperation('InitializeGame');
     // 从关卡中加载游戏项目
     const levelItems = level.lessons.flatMap(lessonId => {
       const lesson = CourseManager.getLesson(lessonId);
@@ -125,9 +150,22 @@ const Game: React.FC = () => {
     setTotalScore(0);
     setCompletedItems(0);
     setGameStarted(true);
+    
+    logger.info('游戏初始化完成', { 
+      levelId: level.id,
+      totalItems: selectedItems.length,
+      itemTypes: selectedItems.map(item => 'word' in item ? 'WordCompletion' : 'ChineseToEnglish')
+    });
+    performanceMonitor.endOperation('InitializeGame');
   };
 
   const handleItemCompleted = (score: number) => {
+    logger.info('用户完成游戏项目', { 
+      itemIndex: currentWordIndex, 
+      score,
+      totalScore: totalScore + score,
+      progress: `${completedItems + 1}/${gameItems.length}`
+    });
     setTotalScore(prev => prev + score);
     setCompletedItems(prev => prev + 1);
     
@@ -144,6 +182,13 @@ const Game: React.FC = () => {
   const handleGameComplete = () => {
     if (!userProgress || !currentLevel) return;
 
+    logger.info('游戏完成，开始计算成绩', { 
+      levelId: currentLevel.id,
+      totalScore,
+      itemsCompleted: gameItems.length
+    });
+    performanceMonitor.startOperation('GameComplete');
+
     const averageScore = totalScore / gameItems.length;
     let message_text = '';
     let stars = 0;
@@ -159,6 +204,11 @@ const Game: React.FC = () => {
       stars = 1;
     }
     
+    logger.info('游戏评分完成', { 
+      averageScore: averageScore.toFixed(2),
+      stars,
+      message: message_text
+    });
     message.success(message_text);
 
     // 更新用户进度
@@ -175,6 +225,12 @@ const Game: React.FC = () => {
     if (currentLevelIndex < levels.length - 1) {
       const nextLevel = levels[currentLevelIndex + 1];
       ProgressManager.unlockLevel(userProgress.userId, userProgress.courseId, nextLevel.id);
+      logger.info('解锁下一关卡', { 
+        currentLevelId: currentLevel.id,
+        nextLevelId: nextLevel.id 
+      });
+    } else {
+      logger.info('已完成所有关卡', { currentLevelId: currentLevel.id });
     }
 
     // 重新加载用户进度
@@ -183,27 +239,37 @@ const Game: React.FC = () => {
       setUserProgress(updatedProgress);
     }
 
+    performanceMonitor.endOperation('GameComplete', { 
+      totalScore,
+      stars,
+      averageScore: averageScore.toFixed(2)
+    });
     setGameStarted(false);
   };
 
   const restartGame = () => {
+    logger.info('用户重新开始游戏', { levelId: currentLevel?.id });
     if (currentLevel) {
       initializeGame(currentLevel);
     }
   };
 
   const goHome = () => {
+    logger.info('用户返回首页');
     navigate('/');
   };
 
   const selectLevel = (levelId: string) => {
+    logger.info('用户尝试选择关卡', { levelId });
     const selectedLevel = levels.find(level => level.id === levelId);
     if (selectedLevel && userProgress) {
       const isUnlocked = ProgressManager.isLevelUnlocked(userProgress.userId, userProgress.courseId, levelId);
       if (isUnlocked) {
+        logger.info('关卡已解锁，开始游戏', { levelId });
         setCurrentLevel(selectedLevel);
         initializeGame(selectedLevel);
       } else {
+        logger.warn('用户尝试访问未解锁的关卡', { levelId });
         message.warning('该关卡尚未解锁，请先完成前面的关卡！');
       }
     }

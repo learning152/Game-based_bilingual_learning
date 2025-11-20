@@ -3,32 +3,59 @@ import { Card, Typography, Descriptions, Statistic, Row, Col, Button, Avatar, me
 import { UserOutlined, BookOutlined, TrophyOutlined, LineChartOutlined } from '@ant-design/icons';
 import { User } from '../models/User';
 import { useNavigate } from 'react-router-dom';
+import { getUserLogger } from '../utils/logManager';
+import { performanceMonitor } from '../utils/performanceMonitor';
 
 const { Title, Text } = Typography;
+const logger = getUserLogger();
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    logger.info('进入用户个人资料页面');
+    performanceMonitor.startOperation('ProfilePageLoad');
+
     // 从 localStorage 获取当前用户
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
+      logger.warn('未登录用户尝试访问个人资料页面', { redirectTo: '/login' });
       message.warning('请先登录！');
       navigate('/login');
       return;
     }
 
     try {
-      setUser(JSON.parse(currentUser));
+      const userData = JSON.parse(currentUser);
+      setUser(userData);
+      logger.info('用户资料加载成功', { 
+        userId: userData.id, 
+        username: userData.username 
+      });
+      performanceMonitor.endOperation('ProfilePageLoad', { 
+        userId: userData.id 
+      });
     } catch (error) {
+      logger.error('解析用户数据失败', { 
+        error: error instanceof Error ? error.message : String(error),
+        currentUser: currentUser?.substring(0, 50) 
+      });
       console.error('解析用户数据失败:', error);
       message.error('获取用户信息失败，请重新登录！');
       navigate('/login');
     }
+
+    return () => {
+      logger.info('离开用户个人资料页面');
+    };
   }, [navigate]);
 
   const handleLogout = () => {
+    logger.info('用户退出登录', { 
+      userId: user?.id, 
+      username: user?.username 
+    });
     localStorage.removeItem('currentUser');
     message.success('已退出登录');
     navigate('/login');

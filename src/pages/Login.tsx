@@ -3,6 +3,10 @@ import { Form, Input, Button, Card, Typography, message, Space } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { UserManager } from '../models/User';
+import { getUserLogger } from '../utils/logManager';
+
+// 获取用户操作日志记录器
+const userLogger = getUserLogger();
 
 const { Title, Text, Link } = Typography;
 
@@ -25,35 +29,77 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogin = (values: LoginFormValues) => {
+    const startTime = Date.now();
+    userLogger.info('用户尝试登录', { 
+      email: values.email,
+      timestamp: new Date().toISOString()
+    });
+
     try {
       // 简单的本地认证逻辑
       const userId = values.email.replace('@', '_').replace('.', '_');
+      userLogger.debug('生成用户ID', { userId, email: values.email });
+      
       const user = UserManager.getUser(userId);
       
       if (!user) {
+        userLogger.warn('登录失败：用户不存在', { 
+          email: values.email,
+          userId 
+        });
         message.error('用户不存在，请先注册！');
         return;
       }
 
       // 实际项目中应该验证密码，这里简化处理
+      const loginDuration = Date.now() - startTime;
+      userLogger.info('用户登录成功', { 
+        userId,
+        username: user.username,
+        email: values.email,
+        duration: `${loginDuration}ms`,
+        timestamp: new Date().toISOString()
+      });
+
       message.success('登录成功！');
+      
       // 存储登录状态到 localStorage
       localStorage.setItem('currentUser', JSON.stringify(user));
+      userLogger.debug('登录状态已保存到localStorage', { userId });
+      
       // 使用 React Router 导航跳转到个人资料页面
       navigate('/profile');
+      userLogger.debug('导航到个人资料页面', { userId });
     } catch (error) {
+      userLogger.error('登录过程发生异常', { 
+        email: values.email,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       message.error('登录失败，请重试！');
       console.error('登录错误:', error);
     }
   };
 
   const handleRegister = (values: RegisterFormValues) => {
+    const startTime = Date.now();
+    userLogger.info('用户尝试注册', { 
+      username: values.username,
+      email: values.email,
+      timestamp: new Date().toISOString()
+    });
+
     try {
       const userId = values.email.replace('@', '_').replace('.', '_');
+      userLogger.debug('生成新用户ID', { userId, email: values.email });
       
       // 检查用户是否已存在
       const existingUser = UserManager.getUser(userId);
       if (existingUser) {
+        userLogger.warn('注册失败：邮箱已被注册', { 
+          email: values.email,
+          userId 
+        });
         message.error('该邮箱已被注册！');
         return;
       }
@@ -71,16 +117,42 @@ const Login: React.FC = () => {
         }
       };
 
+      userLogger.debug('准备创建新用户', { 
+        userId,
+        username: values.username,
+        email: values.email 
+      });
+
       const success = UserManager.createUser(newUser);
       
       if (success) {
+        const registerDuration = Date.now() - startTime;
+        userLogger.info('用户注册成功', { 
+          userId,
+          username: values.username,
+          email: values.email,
+          duration: `${registerDuration}ms`,
+          timestamp: new Date().toISOString()
+        });
+        
         message.success('注册成功！请登录');
         setIsRegistering(false);
         registerForm.resetFields();
       } else {
+        userLogger.error('用户注册失败：UserManager.createUser返回false', { 
+          userId,
+          username: values.username,
+          email: values.email 
+        });
         message.error('注册失败，请重试！');
       }
     } catch (error) {
+      userLogger.error('注册过程发生异常', { 
+        username: values.username,
+        email: values.email,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       message.error('注册失败，请重试！');
       console.error('注册错误:', error);
     }
