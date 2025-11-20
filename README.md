@@ -1,505 +1,233 @@
-# 基于游戏的双语学习系统
-
-## 项目简介
-这是一个基于游戏的双语学习系统，旨在通过有趣的互动方式帮助用户提高语言能力。
-
-## 技术栈
-- **前端框架**: React + TypeScript
-- **构建工具**: Webpack
-- **样式**: CSS + 主题系统
-- **数据存储**: 本地JSON文件
-- **AI集成**: 支持多种AI服务提供商
-- **日志系统**: 完整的日志记录、管理和分析系统
-
-## 项目特性
-- 🎮 游戏化学习体验
-- 🌐 双语学习支持（中英文）
-- 📊 学习进度追踪
-- 🏆 成就系统
-- 🤖 AI内容生成
-- 📝 完整的日志记录系统
-- 🔍 实时性能监控
-
-## 日志系统使用说明
-
-我们的项目集成了一个企业级的日志系统，提供完整的日志记录、管理、分析和监控功能。系统包含以下核心组件：
-
-### 1. 基础日志记录
-
-#### 1.1 获取日志记录器
-系统提供了多种预配置的日志记录器：
-
-```typescript
-import { 
-  getAppLogger,      // 应用主日志
-  getUserLogger,     // 用户操作日志
-  getDataStorageLogger, // 数据存储日志
-  getAiServiceLogger,   // AI服务日志
-  LogLevel 
-} from './utils/logManager';
-
-// 使用预配置的日志记录器
-const logger = getUserLogger();
-
-// 或创建自定义日志记录器
-import { getLogger } from './utils/logManager';
-const customLogger = getLogger({ 
-  category: 'yourModule',
-  level: LogLevel.INFO 
-});
-```
-
-#### 1.2 记录不同级别的日志
-```typescript
-// 调试信息 - 开发阶段使用
-logger.debug('用户输入验证', { email: 'user@example.com' });
-
-// 普通信息 - 记录正常操作
-logger.info('用户登录成功', { userId: '123', duration: '200ms' });
-
-// 警告信息 - 需要注意的情况
-logger.warn('API响应缓慢', { endpoint: '/api/data', duration: '5000ms' });
-
-// 错误信息 - 可恢复的错误
-logger.error('数据保存失败', { error: error.message, userId: '123' });
-
-// 致命错误 - 严重的系统错误
-logger.fatal('数据库连接失败', { error: error.stack });
-```
-
-### 2. 日志查看与分析
-
-#### 2.1 基础日志查询
-```typescript
-import { logViewer, LogLevel } from './utils/logViewer';
-
-// 查询特定条件的日志
-const result = await logViewer.queryLogs({
-  category: 'user',           // 日志类别
-  level: LogLevel.INFO,       // 最低日志级别
-  startTime: new Date('2025-11-01'), // 开始时间
-  endTime: new Date('2025-11-20'),   // 结束时间
-  keywords: ['登录', '注册'],  // 关键词搜索
-  page: 1,                    // 页码
-  pageSize: 50               // 每页数量
-});
-
-console.log(`查询到 ${result.total} 条日志`);
-console.log('日志内容:', result.logs);
-```
-
-#### 2.2 日志导出功能
-```typescript
-// 导出为JSON格式（结构化数据）
-await logViewer.exportLogs(result.logs, './export/logs.json', 'json');
-
-// 导出为CSV格式（便于Excel分析）
-await logViewer.exportLogs(result.logs, './export/logs.csv', 'csv');
-
-// 导出为TXT格式（纯文本）
-await logViewer.exportLogs(result.logs, './export/logs.txt', 'txt');
-```
-
-#### 2.3 统计分析功能
-```typescript
-const stats = logViewer.analyzeStats(result.logs);
-
-console.log('日志级别分布:', stats.levelStats);
-console.log('模块分布:', stats.categoryStats);
-console.log('24小时分布:', stats.hourlyDistribution);
-console.log('Top 10错误:', stats.topErrors);
-```
-
-### 3. 日志压缩与存储管理
-
-#### 3.1 自动压缩功能
-系统会自动对旧日志文件进行gzip压缩，节省存储空间。现在支持并行压缩，提高了处理大量日志文件的效率：
-
-```typescript
-import { logCompressor } from './utils/logCompressor';
-
-// 手动触发压缩（现在支持并行处理）
-await logCompressor.compressOldLogs();
-
-// 压缩特定文件
-await logCompressor.compressFile('./logs/app_2025-11-19_0.log');
-
-// 获取压缩统计信息
-const stats = await logCompressor.getCompressionStats();
-console.log('压缩统计:', stats);
-```
-
-#### 3.2 压缩配置
-```typescript
-// 自定义压缩配置
-const customCompressor = new LogCompressor({
-  logDir: './logs',              // 日志目录
-  maxUncompressedAge: 7,         // 未压缩文件保留天数
-  compressionLevel: 6,           // 压缩级别 (0-9)
-  deleteOriginal: true,          // 压缩后删除原文件
-  maxConcurrency: 3              // 最大并发压缩数量
-});
-```
-
-#### 3.3 并行压缩性能
-并行压缩功能通过控制并发数，可以显著提高压缩效率，特别是在处理大量日志文件时：
-
-- 自动调整并发数：系统会根据`maxConcurrency`设置自动调整并发压缩的文件数。
-- 进度显示：压缩过程中会显示实时进度，方便监控。
-- 详细统计：完成后会输出压缩耗时、成功/失败文件数等统计信息。
-
-示例输出：
-```
-找到 100 个需要压缩的文件，开始并行压缩...
-压缩进度: 30/100 (30.0%)
-压缩进度: 60/100 (60.0%)
-压缩进度: 90/100 (90.0%)
-压缩进度: 100/100 (100.0%)
-并行压缩耗时: 5.23秒
-成功: 98, 失败: 2
-批量压缩完成，成功压缩 98/100 个文件
-```
-
-通过调整`maxConcurrency`，可以根据系统资源和需求平衡压缩速度和资源占用。
-
-### 4. 智能日志告警
-
-#### 4.1 配置告警规则
-```typescript
-import { LogAlertManager, LogLevel } from './utils/logAlertManager';
-
-const alertManager = new LogAlertManager();
-
-// 添加错误日志告警规则
-alertManager.addRule({
-  id: 'error-alert',
-  name: '错误日志告警',
-  description: '当错误日志频繁出现时触发告警',
-  level: LogLevel.ERROR,
-  threshold: 10,              // 触发阈值：10次
-  timeWindow: 60000,          // 时间窗口：1分钟
-  cooldown: 300000,           // 冷却时间：5分钟
-  enabled: true
-});
-
-// 添加特定关键词告警
-alertManager.addRule({
-  id: 'critical-keyword-alert',
-  name: '关键词告警',  
-  description: '监控包含特定关键词的日志',
-  level: LogLevel.WARN,
-  keywords: ['数据库错误', '网络超时', '内存不足'],
-  threshold: 5,
-  timeWindow: 300000,         // 5分钟
-  cooldown: 600000,           // 10分钟
-  enabled: true
-});
-```
-
-#### 4.2 监听告警事件
-```typescript
-// 监听告警事件
-alertManager.on('alert', (alert) => {
-  console.log(`🚨 触发告警: ${alert.ruleName}`);
-  console.log(`📊 统计: ${alert.count} 次，级别: ${alert.level}`);
-  console.log(`📝 相关日志: ${alert.logs.length} 条`);
-  
-  // 这里可以集成邮件、短信、钉钉等通知方式
-  sendNotification(alert);
-});
-
-// 开始监控
-alertManager.startMonitoring();
-```
-
-#### 4.3 告警管理
-```typescript
-// 获取所有告警规则
-const rules = alertManager.getRules();
-
-// 禁用特定规则
-alertManager.disableRule('error-alert');
-
-// 清除已解决的告警
-alertManager.clearResolvedAlerts();
-
-// 获取活跃告警
-const activeAlerts = alertManager.getActiveAlerts();
-```
-
-### 5. 性能监控与分析
-
-#### 5.1 操作性能监控
-```typescript
-import { performanceMonitor } from './utils/performanceMonitor';
-
-// 监控单个操作
-performanceMonitor.startOperation('数据加载');
-try {
-  const data = await loadUserData();
-  performanceMonitor.endOperation('数据加载', { 
-    dataSize: data.length,
-    userId: currentUser.id
-  });
-} catch (error) {
-  performanceMonitor.endOperation('数据加载', { 
-    error: error.message,
-    failed: true
-  });
-}
-```
-
-#### 5.2 批量操作监控
-```typescript
-// 监控批量操作
-const operations = ['登录验证', 'AI内容生成', '数据保存'];
-
-for (const op of operations) {
-  performanceMonitor.startOperation(op);
-  await performOperation(op);
-  performanceMonitor.endOperation(op);
-}
-
-// 获取性能统计
-const metrics = performanceMonitor.getMetrics();
-console.log('操作耗时统计:', metrics.operationStats);
-console.log('平均响应时间:', metrics.averageResponseTime);
-console.log('慢查询列表:', metrics.slowOperations);
-```
-
-#### 5.3 性能报告生成
-```typescript
-// 生成性能报告
-const report = await performanceMonitor.generateReport({
-  startTime: new Date('2025-11-20'),
-  endTime: new Date(),
-  includeDetails: true
-});
-
-console.log('性能报告:', report);
-
-// 导出性能数据
-await performanceMonitor.exportMetrics('./reports/performance.json');
-```
-
-### 6. 实时日志监控
-
-#### 6.1 启动实时监控
-```typescript
-import { RealtimeLogViewer } from './utils/realtimeLogViewer';
-
-const realtimeViewer = new RealtimeLogViewer({
-  logDir: './logs',
-  categories: ['user', 'ai', 'data'], // 监控的日志类别
-  levels: [LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR], // 监控的级别
-  bufferSize: 100,      // 缓冲区大小
-  updateInterval: 1000  // 更新间隔（毫秒）
-});
-
-// 监听新日志
-realtimeViewer.on('logs', (logs) => {
-  logs.forEach(log => {
-    console.log(`[${log.timestamp}] [${log.level}] ${log.message}`);
-  });
-});
-
-// 监听错误事件
-realtimeViewer.on('error', (error) => {
-  console.error('实时日志监控错误:', error);
-});
-
-// 开始监控
-realtimeViewer.start();
-```
-
-#### 6.2 过滤与筛选
-```typescript
-// 设置日志过滤器
-realtimeViewer.setFilter({
-  keywords: ['登录', '错误'],      // 关键词过滤
-  excludeKeywords: ['DEBUG'],     // 排除关键词
-  minLevel: LogLevel.INFO,        // 最低级别
-  categories: ['user', 'ai']      // 指定类别
-});
-
-// 动态调整监控配置
-realtimeViewer.updateConfig({
-  updateInterval: 500,  // 更频繁的更新
-  bufferSize: 200      // 更大的缓冲区
-});
-```
-
-### 7. 高性能日志搜索
-
-#### 7.1 建立搜索索引
-```typescript
-import { logSearchIndex } from './utils/logSearchIndex';
-
-// 为所有日志文件建立索引
-await logSearchIndex.buildIndex();
-
-// 为特定时间范围建立索引
-await logSearchIndex.buildIndex({
-  startDate: new Date('2025-11-01'),
-  endDate: new Date('2025-11-20'),
-  categories: ['user', 'ai']
-});
-
-// 获取索引统计信息
-const indexStats = await logSearchIndex.getIndexStats();
-console.log('索引统计:', indexStats);
-```
-
-#### 7.2 高级搜索功能
-```typescript
-// 复杂条件搜索
-const searchResult = await logSearchIndex.search({
-  keywords: ['API调用', '超时'],        // 多关键词
-  excludeKeywords: ['成功'],           // 排除词
-  level: LogLevel.ERROR,               // 日志级别
-  categories: ['ai', 'data'],          // 多类别
-  startTime: new Date('2025-11-20'),   // 时间范围
-  endTime: new Date(),
-  fuzzy: true,                         // 模糊匹配
-  limit: 1000                          // 结果限制
-});
-
-console.log(`搜索到 ${searchResult.total} 条匹配的日志`);
-console.log('搜索耗时:', searchResult.duration, 'ms');
-```
-
-#### 7.3 搜索结果处理
-```typescript
-// 高亮搜索结果
-const highlightedResults = logSearchIndex.highlightResults(
-  searchResult.logs, 
-  ['API调用', '超时']
-);
-
-// 按时间聚合结果
-const aggregated = logSearchIndex.aggregateByTime(
-  searchResult.logs, 
-  'hour' // 可选: 'minute', 'hour', 'day'
-);
-
-// 导出搜索结果
-await logSearchIndex.exportSearchResults(
-  searchResult, 
-  './search-results.json'
-);
-```
-
-### 8. 日志文件结构
-
-所有日志文件按类别和日期自动组织：
-
-```
-./logs/
-├── app_2025-11-20_0.log          # 应用主日志
-├── app_2025-11-20_0.log.gz       # 压缩的历史日志
-├── user_2025-11-20_0.log         # 用户操作日志
-├── data_2025-11-20_0.log         # 数据存储日志
-├── ai_2025-11-20_0.log           # AI服务日志
-├── performance_2025-11-20_0.log  # 性能监控日志
-└── alert-rules.json              # 告警规则配置
-```
-
-## 环境配置
-
-### Node.js 环境
-项目使用 Conda 管理 Node.js 环境：
-
+# 双语学习闯关平台 (Bilingual Learning Adventure)
+
+> 一款完全本地运行的游戏化双语学习应用，支持中英文互译学习，无需网络连接即可使用所有核心功能。
+
+## 🎯 项目简介
+
+双语学习闯关平台是一款创新的语言学习应用，专为中文学习者（外国人）和英文学习者（中国人）设计。通过游戏化的闯关模式，让语言学习变得更有趣、更高效。
+
+### 适用人群
+- **目标用户**：6岁以上的语言学习者
+- **学习场景**：中文→英文、英文→中文双向学习
+- **使用环境**：完全本地运行，无需网络连接
+
+### 项目定位
+- ✅ **本地优先**：零网络依赖，数据完全掌控
+- ✅ **游戏化学习**：闯关模式，激励式学习体验
+- ✅ **隐私保护**：数据不上传，本地加密存储
+
+## ✨ 核心特性
+
+### 🎮 学习模式
+1. **单词补全闯关** - 根据音频/图片提示完成单词拼写
+2. **中译英闯关** - 将中文句子翻译成英文，实时反馈
+3. **英译中闯关** - 将英文句子翻译成中文，拼音辅助
+4. **听写闯关** - 听音频完成拼写，支持速度调节
+5. **每日挑战** - 每日新鲜题目，坚持学习获得奖励
+
+### 🏆 游戏化系统
+- **星级评分**：根据准确率和完成时间评定1-3星
+- **关卡解锁**：循序渐进的学习路径
+- **成就系统**：解锁徽章，展示学习成果
+- **积分奖励**：完成挑战获得积分，激励持续学习
+- **连击奖励**：连续答对获得额外奖励
+
+### 💾 数据管理
+- **自动备份**：每日自动创建学习数据备份
+- **数据导出**：一键导出学习进度（JSON/CSV格式）
+- **数据导入**：跨设备迁移学习数据
+- **多档案管理**：支持创建多个学习档案
+- **重新开始**：保留历史记录的同时重新开始游戏
+
+### 🤖 AI 增强
+- **智能内容生成**：集成百度文心一言3.5-8k模型
+- **个性化推荐**：基于学习进度的智能题目推荐
+- **内容缓存**：本地缓存AI生成内容，提升响应速度
+- **降级方案**：AI服务不可用时，自动切换本地题库
+
+### 📊 学习追踪
+- **进度可视化**：学习时长、完成度、正确率图表
+- **详细统计**：单词掌握情况、薄弱环节分析
+- **学习报告**：个人学习报告和建议
+- **历史记录**：完整的学习历史追溯
+
+
+### AI 服务
+- **主要服务**：百度文心一言3.5-8k（OpenAI兼容接口）
+- **降级方案**：本地题库 + 规则引擎
+- **缓存策略**：内存缓存 + 文件缓存双层机制
+
+## 🚀 快速开始
+
+### 环境要求
+- **Node.js**：v18.0+ （推荐通过Conda管理：`conda activate node22`）
+- **操作系统**：Windows 10+, macOS 10.14+, Ubuntu 18.04+
+- **磁盘空间**：至少200MB可用空间
+
+### 安装步骤
+
+1. **克隆项目**
 ```bash
-# 激活 Node.js 环境
+git clone <repository-url>
+cd Game-based_bilingual_learning
+```
+
+2. **激活Node环境**（如使用Conda）
+```bash
 conda activate node22
+```
 
-# 安装依赖
+3. **安装依赖**
+```bash
 npm install
+```
 
-# 启动开发服务器
+4. **配置AI服务**（可选）
+```bash
+# 复制配置示例
+cp config/ai-service.example.json config/ai-service.json
+# 编辑配置文件，填入API密钥
+```
+
+5. **启动应用**
+```bash
+# 开发模式
+npm run dev
 npm start
 
-# 构建生产版本
+# 生产模式
 npm run build
+npm start
 ```
 
-### 环境变量配置
-在项目根目录创建 `.env` 文件：
+## 📂 项目结构
 
-```env
-# AI服务配置
-AI_PROVIDER=openai
-AI_API_KEY=your_api_key_here
-AI_BASE_URL=https://api.openai.com
-
-# 日志配置
-LOG_LEVEL=INFO
-LOG_DIR=./logs
-ENABLE_LOG_COMPRESSION=true
-ENABLE_LOG_ALERTS=true
+```
+Game-based_bilingual_learning/
+├── src/                          # 源代码目录
+│   ├── components/              # React组件
+│   │   ├── ChineseToEnglish.tsx    # 中译英组件
+│   │   ├── EnglishToChinese.tsx    # 英译中组件
+│   │   ├── WordCompletion.tsx      # 单词补全组件
+│   │   ├── LearningProgress.tsx    # 学习进度组件
+│   │   └── Navigation.tsx          # 导航组件
+│   ├── pages/                   # 页面组件
+│   │   ├── Login.tsx               # 登录页
+│   │   ├── Courses.tsx             # 课程选择页
+│   │   ├── Game.tsx                # 游戏主页面
+│   │   └── Profile.tsx             # 个人中心
+│   ├── models/                  # 数据模型
+│   │   ├── User.ts                 # 用户模型
+│   │   ├── Course.ts               # 课程模型
+│   │   ├── Progress.ts             # 进度模型
+│   │   └── Achievement.ts          # 成就模型
+│   ├── utils/                   # 工具函数
+│   │   ├── ai/                     # AI相关工具
+│   │   │   ├── aiService.ts        # AI服务接口
+│   │   │   ├── contentGenerator.ts # 内容生成器
+│   │   │   ├── contentCache.ts     # 内容缓存
+│   │   │   └── aiContentManager.ts # AI内容管理器
+│   │   ├── dataStorage.ts          # 数据存储工具
+│   │   ├── logger.ts               # 日志记录工具
+│   │   └── learningStats.ts        # 学习统计工具
+│   ├── styles/                  # 样式文件
+│   │   ├── global.css              # 全局样式
+│   │   └── theme.ts                # 主题配置
+│   ├── App.tsx                  # 应用根组件
+│   └── index.tsx                # 应用入口
+├── data/                        # 数据存储目录
+│   ├── users/                      # 用户数据
+│   ├── courses/                    # 课程数据
+│   ├── lessons/                    # 关卡数据
+│   ├── achievements/               # 成就数据
+│   └── backups/                    # 备份数据
+├── logs/                        # 日志文件目录
+├── config/                      # 配置文件目录
+│   ├── ai-service.example.json     # AI服务配置示例
+│   └── baidu-api-example.py        # 百度API示例
+├── .comate/                     # 开发文档目录
+│   ├── plan/                       # 执行计划文档
+│   ├── 文档/                       # 设计文档
+│   └── rules/                      # 开发规范
+├── dist/                        # 编译输出目录
+├── main.ts                      # Electron主进程
+├── package.json                 # 项目配置
+├── tsconfig.json                # TypeScript配置
+├── webpack.config.js            # Webpack配置
+└── README.md                    # 项目说明文档
 ```
 
-## 使用指南
+## 📖 使用指南
 
-### 快速开始
-1. 克隆项目并安装依赖
-2. 激活 Node.js 环境：`conda activate node22`
-3. 配置环境变量（可选）
-4. 启动开发服务器：`npm start`
-5. 打开浏览器访问：`http://localhost:3000`
+### 学习模式选择
+1. 登录后进入课程选择页面
+2. 选择学习方向（中→英 或 英→中）
+3. 选择难度级别（初级/中级/高级）
+4. 点击开始学习
 
-### 开发建议
-- **日志记录**: 在关键操作和错误处理点添加适当的日志记录
-- **性能监控**: 对耗时操作使用性能监控工具
-- **告警配置**: 根据业务需求配置合适的告警规则
-- **定期分析**: 使用日志分析工具定期检查系统状态
-- **安全考虑**: 避免在日志中记录敏感信息（密码、密钥等）
+### 闯关流程
+1. **查看题目**：阅读题目要求和提示
+2. **输入答案**：在输入框中输入答案
+3. **提交判断**：点击提交按钮进行判断
+4. **查看反馈**：查看正确答案和得分
+5. **下一关**：继续下一关卡或返回课程
 
-### 最佳实践
-1. **分类记录**: 不同模块使用对应的日志记录器
-2. **级别控制**: 生产环境建议使用 INFO 级别以上
-3. **结构化数据**: 使用对象形式记录结构化信息
-4. **异常处理**: 记录错误时包含堆栈信息和上下文
-5. **性能考虑**: 避免在高频调用中记录过多调试信息
+### 数据管理
+1. **导出数据**：个人中心 → 数据管理 → 导出数据
+2. **导入数据**：个人中心 → 数据管理 → 导入数据
+3. **备份管理**：个人中心 → 数据管理 → 备份列表
+4. **重新开始**：个人中心 → 游戏设置 → 重新开始游戏
 
-## 故障排除
+### 学习建议
+- 每天至少学习20分钟，保持连续性
+- 先完成基础关卡，循序渐进
+- 利用听写功能加强听力训练
+- 定期查看学习报告，了解进度
+- 参与每日挑战，获得额外奖励
 
-### 常见问题
-1. **日志文件权限错误**: 确保应用有写入 `./logs` 目录的权限
-2. **索引构建失败**: 检查日志文件格式和磁盘空间
-3. **告警不生效**: 验证告警规则配置和监控是否启动
-4. **性能监控数据缺失**: 确保正确调用了开始和结束方法
 
-### 调试模式
-启用调试模式获取更详细的日志信息：
+## ❓ 常见问题
 
-```typescript
-import { getLogger, LogLevel } from './utils/logManager';
+### Q: 应用启动失败？
+**A:** 检查Node.js版本是否>=18，确保已执行`npm install`安装依赖。
 
-const debugLogger = getLogger({ 
-  category: 'debug', 
-  level: LogLevel.DEBUG 
-});
-```
+### Q: AI功能不可用？
+**A:** 检查`config/ai-service.json`配置是否正确，或使用本地题库模式（自动降级）。
 
-## 技术文档
+### Q: 数据存储在哪里？
+**A:** 所有数据存储在`./data/`目录下，包括用户数据、课程数据和备份数据。
 
-更多详细的技术文档和API参考，请查看：
-- [日志系统详细使用指南](./.comate/文档/日志系统使用指南.md)
-- [项目需求文档](./.comate/文档/项目需求文档.md)
-- [数据库设计文档](./.comate/文档/数据库设计文档.md)
-- [流程图文档](./.comate/文档/流程图文档.md)
+### Q: 如何备份学习数据？
+**A:** 应用每天自动备份，也可以在个人中心手动导出数据。
 
-## 贡献指南
+### Q: 支持离线使用吗？
+**A:** 完全支持！所有核心功能都可以离线使用，无需网络连接。
 
-在贡献代码前，请：
-1. 阅读项目规范：`./.comate/rules/my-custom-rule.mdr`
-2. 查看执行计划：`./.comate/plan/` 目录下的相关文档
-3. 遵循既有的代码风格和架构设计
-4. 为新功能添加适当的日志记录和测试
+### Q: 如何切换学习方向？
+**A:** 在课程选择页面可以随时切换中→英或英→中学习方向。
+
+### Q: 数据会被上传吗？
+**A:** 不会！所有数据完全本地存储，我们不会上传任何用户数据。
+
+## 📊 项目状态
+
+- **当前版本**：v1.0.0
+- **开发阶段**：第二阶段（核心功能开发）
+- **完成度**：约45%
+- **预计发布**：2025年4月
+
+
+## 📄 许可证
+
+本项目采用 ISC 许可证。
+
+## 📮 联系方式
+
+- **项目仓库**：[GitHub Repository URL]
+- **问题反馈**：[GitHub Issues URL]
+- **开发者**：Zulu Team
 
 ---
 
-**最后更新**: 2025-11-20  
-**维护者**: Zulu AI助手  
-**版本**: 2.0.0
+**最后更新**：2025-11-20  
+**文档版本**：v1.0.0
