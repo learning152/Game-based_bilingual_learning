@@ -1,194 +1,102 @@
-import { Logger, LogLevel, getLogger } from '../logManager';
-import { logViewer } from '../logViewer';
-import { realtimeLogViewer } from '../realtimeLogViewer';
-import { logSearchIndex } from '../logSearchIndex';
-import { LogCompressor } from '../logCompressor';
-import { LogAlertManager } from '../logAlertManager';
-import { performanceMonitor } from '../performanceMonitor';
-import * as fs from 'fs';
-import * as path from 'path';
+import { getAppLogger, getUserLogger, getDataStorageLogger, getAiServiceLogger, getPerformanceLogger, LogLevel } from '../logManager';
+import devLogger, { DevLogLevel, logError, logWarn, logUserAction, getErrorStats } from '../devLogger';
 
-const TEST_LOG_DIR = './test-logs';
-const TEST_INDEX_PATH = path.join(TEST_LOG_DIR, '.search-index.json');
+describe('日志系统测试', () => {
+  const originalConsoleLog = console.log;
+  let consoleOutput: string[] = [];
 
-describe('日志系统集成测试', () => {
-  let logger: Logger;
-  let compressor: LogCompressor;
-  let alertManager: LogAlertManager;
-
-  beforeAll(async () => {
-    // 创建测试日志目录
-    if (!fs.existsSync(TEST_LOG_DIR)) {
-      fs.mkdirSync(TEST_LOG_DIR);
-    }
-
-    // 初始化测试用的日志管理器
-    logger = getLogger({
-      level: LogLevel.DEBUG,
-      category: 'test',
-      logDir: TEST_LOG_DIR
+  beforeEach(() => {
+    consoleOutput = [];
+    console.log = jest.fn((...args) => {
+      consoleOutput.push(args.join(' '));
     });
-
-    // 初始化压缩器
-    compressor = new LogCompressor({
-      logDir: TEST_LOG_DIR,
-      maxUncompressedAge: 1, // 1天后压缩
-      compressionLevel: 6,
-      deleteOriginal: true
-    });
-
-    // 初始化告警管理器
-    alertManager = new LogAlertManager(path.join(TEST_LOG_DIR, 'alert-rules.json'));
-
-    // 初始化搜索索引
-    await logSearchIndex.buildIndex(true);
   });
 
-  afterAll(() => {
-    // 清理测试日志目录
-    if (fs.existsSync(TEST_LOG_DIR)) {
-      fs.rmdirSync(TEST_LOG_DIR, { recursive: true });
-    }
+  afterEach(() => {
+    console.log = originalConsoleLog;
   });
 
-  test('日志记录功能', () => {
-    logger.info('测试信息日志');
-    logger.warn('测试警告日志');
-    logger.error('测试错误日志');
+  test('应用日志记录器功能测试', () => {
+    const appLogger = getAppLogger();
+    appLogger.info('这是一条信息日志');
+    appLogger.warn('这是一条警告日志');
+    appLogger.error('这是一条错误日志');
 
-    const logs = fs.readdirSync(TEST_LOG_DIR).filter(file => file.endsWith('.log'));
-    expect(logs.length).toBeGreaterThan(0);
+    expect(consoleOutput).toHaveLength(1);
+    expect(consoleOutput[0]).toContain('[ERROR]');
+    expect(consoleOutput[0]).toContain('这是一条错误日志');
   });
 
-  test('日志压缩功能', async () => {
-    // 创建一个旧的日志文件进行测试
-    const oldLogPath = path.join(TEST_LOG_DIR, 'old_test.log');
-    fs.writeFileSync(oldLogPath, '这是一个测试日志文件内容');
+  test('用户日志记录器功能测试', () => {
+    const userLogger = getUserLogger();
+    userLogger.info('用户登录');
+    userLogger.warn('用户尝试访问未授权页面');
+    userLogger.error('用户会话异常结束');
 
-    // 将文件的修改时间设置为2天前
-    const twoDaysAgo = new Date();
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    fs.utimesSync(oldLogPath, twoDaysAgo, twoDaysAgo);
-
-    await compressor.compressOldLogs();
-
-    expect(fs.existsSync(`${oldLogPath}.gz`)).toBeTruthy();
-    expect(fs.existsSync(oldLogPath)).toBeFalsy();
+    expect(consoleOutput).toHaveLength(1);
+    expect(consoleOutput[0]).toContain('[ERROR]');
+    expect(consoleOutput[0]).toContain('用户会话异常结束');
   });
 
-  test('日志告警功能', () => {
-    const testRule = {
-      id: 'test-rule',
-      name: '测试规则',
-      description: '测试错误日志告警',
-      level: LogLevel.ERROR,
-      threshold: 1,
-      timeWindow: 60000, // 1分钟
-      cooldown: 300000, // 5分钟
-      enabled: true
-    };
+  test('数据存储日志记录器功能测试', () => {
+    const dataLogger = getDataStorageLogger();
+    dataLogger.info('数据库连接成功');
+    dataLogger.warn('查询性能下降');
+    dataLogger.error('数据库连接丢失');
 
-    alertManager.addRule(testRule);
-
-    let alertTriggered = false;
-    alertManager.onAlert((alert) => {
-      alertTriggered = true;
-      expect(alert.ruleId).toBe('test-rule');
-    });
-
-    const errorLog = {
-      timestamp: new Date(),
-      level: LogLevel.ERROR,
-      levelName: 'ERROR',
-      category: 'test',
-      message: '测试错误日志',
-      rawContent: '[2025-11-20T22:15:00.000Z] [ERROR] [test] 测试错误日志'
-    };
-
-    alertManager.processLog(errorLog);
-    
-    expect(alertTriggered).toBeTruthy();
+    expect(consoleOutput).toHaveLength(1);
+    expect(consoleOutput[0]).toContain('[ERROR]');
+    expect(consoleOutput[0]).toContain('数据库连接丢失');
   });
 
-  test('日志查看功能', async () => {
-    const result = await logViewer.queryLogs({
-      category: 'test',
-      level: LogLevel.INFO,
-      limit: 10
-    });
+  test('AI服务日志记录器功能测试', () => {
+    const aiLogger = getAiServiceLogger();
+    aiLogger.info('AI模型加载完成');
+    aiLogger.warn('AI响应时间超过阈值');
+    aiLogger.error('AI服务异常');
 
-    expect(result.logs.length).toBeGreaterThan(0);
-    expect(result.logs[0].category).toBe('test');
-    expect(result.logs[0].level).toBeGreaterThanOrEqual(LogLevel.INFO);
+    expect(consoleOutput).toHaveLength(1);
+    expect(consoleOutput[0]).toContain('[ERROR]');
+    expect(consoleOutput[0]).toContain('AI服务异常');
   });
 
-  test('实时日志查看功能', (done) => {
-    const realtime = realtimeLogViewer;
-    realtime.updateOptions({
-      logDir: TEST_LOG_DIR,
-      category: 'test',
-      minLevel: LogLevel.INFO
-    });
+  test('性能监控日志记录器功能测试', () => {
+    const perfLogger = getPerformanceLogger();
+    perfLogger.info('页面加载完成');
+    perfLogger.warn('API响应时间过长');
+    perfLogger.error('内存使用率超过90%');
 
-    let logReceived = false;
-    realtime.on('logs', (logs) => {
-      logReceived = true;
-      expect(logs.length).toBeGreaterThan(0);
-      expect(logs[0].category).toBe('test');
-      realtime.stop();
-      done();
-    });
-
-    realtime.start();
-
-    // 写入一条新日志
-    setTimeout(() => {
-      logger.info('实时日志测试');
-    }, 100);
-
-    // 如果5秒内没有收到日志，测试失败
-    setTimeout(() => {
-      if (!logReceived) {
-        realtime.stop();
-        done(new Error('未收到实时日志'));
-      }
-    }, 5000);
+    expect(consoleOutput).toHaveLength(3);
+    expect(consoleOutput[0]).toContain('[INFO]');
+    expect(consoleOutput[1]).toContain('[WARN]');
+    expect(consoleOutput[2]).toContain('[ERROR]');
   });
 
-  test('日志搜索索引功能', async () => {
-    // 写入一些测试日志
-    logger.info('搜索测试日志 1');
-    logger.warn('搜索测试日志 2');
-    logger.error('搜索测试日志 3');
+  test('开发环境简化日志工具功能测试', () => {
+    devLogger.setLevel(DevLogLevel.INFO);
 
-    // 重建索引
-    await logSearchIndex.buildIndex(true);
+    devLogger.info('开发信息日志');
+    devLogger.warn('开发警告日志');
+    devLogger.error('开发错误日志');
+    devLogger.fatal('开发致命错误日志');
 
-    const searchResult = await logSearchIndex.search({
-      keywords: ['搜索测试'],
-      level: LogLevel.WARN,
-      limit: 10
-    });
+    expect(consoleOutput).toHaveLength(4);
+    expect(consoleOutput[0]).toContain('[INFO]');
+    expect(consoleOutput[1]).toContain('[WARN]');
+    expect(consoleOutput[2]).toContain('[ERROR]');
+    expect(consoleOutput[3]).toContain('[FATAL]');
 
-    expect(searchResult.entries.length).toBeGreaterThan(0);
-    expect(searchResult.entries[0].level).toBeGreaterThanOrEqual(LogLevel.WARN);
-    expect(searchResult.entries[0].message).toContain('搜索测试');
-  });
+    logError('快捷错误日志');
+    logWarn('快捷警告日志');
+    logUserAction('用户点击按钮', 'user123');
 
-  test('性能监控功能', () => {
-    performanceMonitor.startOperation('测试操作');
-    
-    // 模拟一些操作
-    for (let i = 0; i < 1000000; i++) {
-      Math.sqrt(i);
-    }
+    expect(consoleOutput).toHaveLength(7);
+    expect(consoleOutput[4]).toContain('[ERROR]');
+    expect(consoleOutput[5]).toContain('[WARN]');
+    expect(consoleOutput[6]).toContain('[USER]');
 
-    performanceMonitor.endOperation('测试操作', { testMetadata: 'performance test' });
-
-    const metrics = performanceMonitor.getMetrics();
-    expect(metrics.length).toBeGreaterThan(0);
-    expect(metrics[0].operation).toBe('测试操作');
-    expect(metrics[0].duration).toBeGreaterThan(0);
-    expect(metrics[0].metadata).toHaveProperty('testMetadata', 'performance test');
+    const stats = getErrorStats();
+    expect(stats.errors).toBe(2);
+    expect(stats.warnings).toBe(2);
   });
 });

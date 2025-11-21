@@ -9,6 +9,11 @@ export interface LevelProgress {
   attempts: number;
   lastAttemptAt?: string;
   completedAt?: string;
+  highestScore: number; // 最高分数
+  totalScore: number; // 累计总分
+  lastPlayedAt?: string; // 最后游玩时间
+  timeSpent?: number; // 游戏时长(秒)
+  achievements?: string[]; // 成就列表
 }
 
 export interface UserProgress {
@@ -79,6 +84,10 @@ export class ProgressManager {
           score: 0,
           stars: 0,
           attempts: 0,
+          highestScore: 0,
+          totalScore: 0,
+          timeSpent: 0,
+          achievements: [],
         },
       },
       createdAt: new Date().toISOString(),
@@ -104,6 +113,10 @@ export class ProgressManager {
         score: 0,
         stars: 0,
         attempts: 0,
+        highestScore: 0,
+        totalScore: 0,
+        timeSpent: 0,
+        achievements: [],
       };
     } else {
       progress.levelsProgress[levelId].unlocked = true;

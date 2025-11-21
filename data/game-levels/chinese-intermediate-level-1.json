@@ -1,0 +1,187 @@
+{
+  "id": "chinese-intermediate-level-1",
+  "title": "汉语进阶 - 第一关",
+  "description": "提升汉语表达能力，学习更复杂的句型和词汇",
+  "difficulty": "intermediate",
+  "language": "chinese",
+  "icon": "chinese-2",
+  "estimatedTime": 45,
+  "tags": ["vocabulary", "grammar", "conversation"],
+  "unlockConditions": [
+    {
+      "type": "level",
+      "target": "chinese-beginner-level-1",
+      "value": 2,
+      "description": "完成汉语入门第一关并获得至少2星"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "points",
+      "value": 150,
+      "description": "完成中级第一关奖励"
+    },
+    {
+      "type": "achievement",
+      "value": "chinese_intermediate_milestone",
+      "description": "获得汉语进阶里程碑成就"
+    }
+  ],
+  "stages": [
+    {
+      "id": "chinese-intermediate-level-1-stage-1",
+      "title": "复杂句型",
+      "description": "学习并运用更复杂的汉语句型",
+      "order": 1,
+      "minScore": 75,
+      "challenges": [
+        {
+          "id": "complex-sentence-challenge-1",
+          "type": "grammar",
+          "title": "学习‘虽然...但是...’句型",
+          "content": {
+            "type": "grammar",
+            "explanation": "虽然...但是...用于表示转折关系，前一部分说明原因或让步，后一部分表示相反或出乎意料的结果。",
+            "examples": [
+              {
+                "sentence": "虽然今天下雨，但是我还是去上班了。",
+                "translation": "Although it's raining today, I still went to work."
+              },
+              {
+                "sentence": "虽然他很忙，但是他总是有时间陪家人。",
+                "translation": "Although he is very busy, he always has time for his family."
+              }
+            ],
+            "exercise": {
+              "type": "fillInTheBlank",
+              "question": "完成句子：虽然这道题很难，_______我还是要尝试解决。",
+              "correctAnswer": "但是",
+              "alternativeAnswers": ["不过", "可是"]
+            }
+          },
+          "difficulty": 2,
+          "timeLimit": 300,
+          "points": 40
+        },
+        {
+          "id": "complex-sentence-challenge-2",
+          "type": "translation",
+          "title": "句型翻译练习",
+          "content": {
+            "type": "translation",
+            "sourceText": "Although the movie was long, it was very interesting.",
+            "targetLanguage": "zh",
+            "correctAnswer": "虽然这部电影很长，但是很有趣。",
+            "alternativeAnswers": [
+              "这部电影虽然很长，但是非常有意思。",
+              "尽管电影很长，但是很精彩。"
+            ]
+          },
+          "difficulty": 3,
+          "timeLimit": 180,
+          "points": 50
+        }
+      ]
+    },
+    {
+      "id": "chinese-intermediate-level-1-stage-2",
+      "title": "高级词汇",
+      "description": "学习并应用更高级的汉语词汇",
+      "order": 2,
+      "minScore": 70,
+      "challenges": [
+        {
+          "id": "advanced-vocab-challenge-1",
+          "type": "vocabulary",
+          "title": "商务词汇学习",
+          "content": {
+            "type": "vocabulary",
+            "words": [
+              {
+                "word": "谈判",
+                "definition": "Negotiation",
+                "pronunciation": "tán pàn",
+                "examples": ["我们正在与客户进行谈判。"]
+              },
+              {
+                "word": "合作",
+                "definition": "Cooperation",
+                "pronunciation": "hé zuò",
+                "examples": ["两家公司决定展开合作。"]
+              },
+              {
+                "word": "投资",
+                "definition": "Investment",
+                "pronunciation": "tóu zī",
+                "examples": ["他们计划在这个项目上投资一百万元。"]
+              },
+              {
+                "word": "利润",
+                "definition": "Profit",
+                "pronunciation": "lì rùn",
+                "examples": ["公司今年的利润比去年增加了20%。"]
+              },
+              {
+                "word": "市场",
+                "definition": "Market",
+                "pronunciation": "shì chǎng",
+                "examples": ["我们需要开拓新的市场。"]
+              }
+            ],
+            "exerciseType": "matchDefinition"
+          },
+          "difficulty": 3,
+          "timeLimit": 420,
+          "points": 60
+        },
+        {
+          "id": "advanced-vocab-challenge-2",
+          "type": "dialogue",
+          "title": "商务对话练习",
+          "content": {
+            "type": "dialogue",
+            "scenario": "两个商业伙伴讨论合作计划",
+            "characters": [
+              {
+                "id": "person1",
+                "name": "李总"
+              },
+              {
+                "id": "person2",
+                "name": "张经理"
+              }
+            ],
+            "dialogue": [
+              {
+                "characterId": "person1",
+                "text": "张经理，我们来讨论一下新的合作计划吧。",
+                "isUserTurn": false
+              },
+              {
+                "characterId": "person2",
+                "isUserTurn": true,
+                "expectedResponses": ["好的，李总。我们公司有什么可以帮助您的？", "当然，李总。您对这次合作有什么想法？", "没问题，李总。我们来探讨一下合作的细节。"]
+              },
+              {
+                "characterId": "person1",
+                "text": "我们想在你们的平台上投资一个新项目，预计投资额在500万左右。",
+                "isUserTurn": false
+              },
+              {
+                "characterId": "person2",
+                "isUserTurn": true,
+                "expectedResponses": ["这是个很大的投资额度。我们非常感兴趣，能详细说说这个项目吗？", "500万是一笔可观的投资。您能进一步介绍一下这个项目的具体内容吗？", "我们很荣幸能得到这样的投资机会。能否告诉我们更多关于这个项目的信息？"]
+              }
+            ],
+            "userRole": "person2"
+          },
+          "difficulty": 4,
+          "timeLimit": 300,
+          "points": 70
+        }
+      ]
+    }
+  ],
+  "createdAt": "2025-11-21T15:30:00.000Z",
+  "updatedAt": "2025-11-21T15:30:00.000Z"
+}

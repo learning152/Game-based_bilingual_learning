@@ -37,7 +37,7 @@ export class RealtimeLogViewer extends EventEmitter {
     super();
     
     this.options = {
-      logDir: './logs',
+      logDir: path.join(__dirname, '..', '..', 'logs'),
       minLevel: LogLevel.INFO,
       maxLines: 1000,
       pollInterval: 1000,

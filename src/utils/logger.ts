@@ -245,5 +245,5 @@ export function getLogger(config?: LoggerConfig): Logger {
 }
 
 export default Logger;
-export { LogLevel };
+export { LogLevel};
 export type { LoggerConfig, LogEntry };

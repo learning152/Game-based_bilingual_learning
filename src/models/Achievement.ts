@@ -1,6 +1,7 @@
 import { dataStorage } from '../utils/dataStorage';
 
 export interface Achievement {
+  type: any;
   id: string;
   title: string;
   description: string;
@@ -37,6 +38,18 @@ export class AchievementManager {
 
   static listAchievements(): string[] {
     return dataStorage.listFiles(this.ACHIEVEMENT_CATEGORY);
+  }
+
+  /**
+   * 获取所有成就
+   * @returns 所有成就的数组
+   */
+  static getAllAchievements(): Achievement[] {
+    const achievementIds = this.listAchievements();
+    const achievements = achievementIds
+      .map(id => this.getAchievement(id))
+      .filter((achievement): achievement is Achievement => achievement !== null);
+    return achievements;
   }
 
   static unlockAchievement(userAchievement: UserAchievement): boolean {

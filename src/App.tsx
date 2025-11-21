@@ -7,6 +7,8 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Courses from './pages/Courses';
 import Game from './pages/Game';
+import LevelSelectionPage from './pages/LevelSelection';
+import LevelDetailPage from './pages/LevelDetailPage';
 
 const { Header, Content, Footer } = Layout;
 
@@ -24,6 +26,8 @@ const App: React.FC = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/courses" element={<Courses />} />
               <Route path="/game" element={<Game />} />
+              <Route path="/levels" element={<LevelSelectionPage />} />
+              <Route path="/level-detail/:levelId" element={<LevelDetailPage />} />
               <Route path="/" element={<Navigate to="/profile" replace />} />
             </Routes>
           </Content>

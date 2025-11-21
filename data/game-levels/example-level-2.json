@@ -1,0 +1,190 @@
+{
+  "id": "english-beginner-level-1",
+  "title": "英语入门 - 第一关",
+  "description": "学习基础英语词汇和简单对话，适合初学者",
+  "difficulty": "beginner",
+  "language": "english",
+  "icon": "english-1",
+  "estimatedTime": 25,
+  "tags": ["vocabulary", "greeting", "daily life"],
+  "unlockConditions": [
+    {
+      "type": "level",
+      "target": "chinese-beginner-level-1",
+      "value": 1,
+      "description": "完成汉语入门第一关并获得至少1星"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "points",
+      "value": 100,
+      "description": "完成第一关奖励"
+    },
+    {
+      "type": "achievement",
+      "value": "first_english_steps",
+      "description": "获得英语初体验成就"
+    }
+  ],
+  "stages": [
+    {
+      "id": "english-beginner-level-1-stage-1",
+      "title": "基础问候",
+      "description": "学习基本的英语问候语",
+      "order": 1,
+      "minScore": 70,
+      "challenges": [
+        {
+          "id": "eng-greeting-challenge-1",
+          "type": "vocabulary",
+          "title": "学习问候词汇",
+          "content": {
+            "type": "vocabulary",
+            "words": [
+              {
+                "word": "Hello",
+                "definition": "你好",
+                "pronunciation": "həˈloʊ",
+                "examples": ["Hello, my name is John."]
+              },
+              {
+                "word": "Good morning",
+                "definition": "早上好",
+                "pronunciation": "ɡʊd ˈmɔːrnɪŋ",
+                "examples": ["Good morning! It's a beautiful day."]
+              },
+              {
+                "word": "Good evening",
+                "definition": "晚上好",
+                "pronunciation": "ɡʊd ˈiːvnɪŋ",
+                "examples": ["Good evening, welcome to our restaurant."]
+              }
+            ],
+            "exerciseType": "definition"
+          },
+          "difficulty": 1,
+          "timeLimit": 300,
+          "points": 30
+        },
+        {
+          "id": "eng-greeting-challenge-2",
+          "type": "dialogue",
+          "title": "基础对话练习",
+          "content": {
+            "type": "dialogue",
+            "scenario": "两个人在咖啡店相遇",
+            "characters": [
+              {
+                "id": "person1",
+                "name": "John"
+              },
+              {
+                "id": "person2",
+                "name": "Mary"
+              }
+            ],
+            "dialogue": [
+              {
+                "characterId": "person1",
+                "text": "Hello!",
+                "isUserTurn": false
+              },
+              {
+                "characterId": "person2",
+                "isUserTurn": true,
+                "expectedResponses": ["Hello!", "Hi!", "Hey!"]
+              },
+              {
+                "characterId": "person1",
+                "text": "What's your name?",
+                "isUserTurn": false
+              },
+              {
+                "characterId": "person2",
+                "isUserTurn": true,
+                "expectedResponses": ["My name is Mary.", "I'm Mary.", "Mary."]
+              }
+            ],
+            "userRole": "person2"
+          },
+          "difficulty": 2,
+          "timeLimit": 180,
+          "points": 50
+        }
+      ]
+    },
+    {
+      "id": "english-beginner-level-1-stage-2",
+      "title": "数字和日期",
+      "description": "学习基本的英语数字和日期表达",
+      "order": 2,
+      "minScore": 70,
+      "challenges": [
+        {
+          "id": "eng-numbers-challenge-1",
+          "type": "vocabulary",
+          "title": "数字词汇学习",
+          "content": {
+            "type": "vocabulary",
+            "words": [
+              {
+                "word": "One",
+                "definition": "一",
+                "pronunciation": "wʌn",
+                "examples": ["One apple"]
+              },
+              {
+                "word": "Two",
+                "definition": "二",
+                "pronunciation": "tuː",
+                "examples": ["Two floors"]
+              },
+              {
+                "word": "Three",
+                "definition": "三",
+                "pronunciation": "θriː",
+                "examples": ["Three books"]
+              },
+              {
+                "word": "Four",
+                "definition": "四",
+                "pronunciation": "fɔːr",
+                "examples": ["Four people"]
+              },
+              {
+                "word": "Five",
+                "definition": "五",
+                "pronunciation": "faɪv",
+                "examples": ["Five minutes"]
+              }
+            ],
+            "exerciseType": "definition"
+          },
+          "difficulty": 1,
+          "timeLimit": 300,
+          "points": 30
+        },
+        {
+          "id": "eng-numbers-challenge-2",
+          "type": "translation",
+          "title": "数字翻译练习",
+          "content": {
+            "type": "translation",
+            "sourceText": "我有三个苹果和两个橙子。",
+            "targetLanguage": "en",
+            "correctAnswer": "I have three apples and two oranges.",
+            "alternativeAnswers": [
+              "I have 3 apples and 2 oranges."
+            ]
+          },
+          "difficulty": 2,
+          "timeLimit": 120,
+          "points": 40
+        }
+      ]
+    }
+  ],
+  "createdAt": "2025-11-20T11:00:00.000Z",
+  "updatedAt": "2025-11-20T11:00:00.000Z"
+}

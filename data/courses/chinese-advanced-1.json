@@ -1,0 +1,14 @@
+{
+  "id": "chinese-advanced-1",
+  "title": "中文高级课程 1",
+  "description": "深入学习高级中文表达、文学阅读和写作技巧",
+  "language": "chinese",
+  "lessons": [
+    "cn-lesson-7",
+    "cn-lesson-8",
+    "cn-lesson-9",
+    "cn-advanced-writing-1"
+  ],
+  "createdAt": "2025-11-21T15:15:00.000Z",
+  "updatedAt": "2025-11-21T15:15:00.000Z"
+}

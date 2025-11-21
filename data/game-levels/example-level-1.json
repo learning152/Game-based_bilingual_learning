@@ -1,0 +1,190 @@
+{
+  "id": "chinese-beginner-level-1",
+  "title": "汉语入门 - 第一关",
+  "description": "学习基础汉语词汇和简单对话，适合零基础学习者",
+  "difficulty": "beginner",
+  "language": "chinese",
+  "icon": "chinese-1",
+  "estimatedTime": 30,
+  "tags": ["vocabulary", "greeting", "daily life"],
+  "unlockConditions": [
+    {
+      "type": "level",
+      "target": "",
+      "value": 0,
+      "description": "起始关卡，无需解锁条件"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "points",
+      "value": 100,
+      "description": "完成第一关奖励"
+    },
+    {
+      "type": "achievement",
+      "value": "first_chinese_steps",
+      "description": "获得汉语初体验成就"
+    }
+  ],
+  "stages": [
+    {
+      "id": "chinese-beginner-level-1-stage-1",
+      "title": "问候语",
+      "description": "学习基本的汉语问候语",
+      "order": 1,
+      "minScore": 70,
+      "challenges": [
+        {
+          "id": "greeting-challenge-1",
+          "type": "vocabulary",
+          "title": "学习问候词汇",
+          "content": {
+            "type": "vocabulary",
+            "words": [
+              {
+                "word": "你好",
+                "definition": "Hello",
+                "pronunciation": "nǐ hǎo",
+                "examples": ["你好，我叫小明。"]
+              },
+              {
+                "word": "早上好",
+                "definition": "Good morning",
+                "pronunciation": "zǎo shang hǎo",
+                "examples": ["早上好！今天天气真好。"]
+              },
+              {
+                "word": "晚上好",
+                "definition": "Good evening",
+                "pronunciation": "wǎn shang hǎo",
+                "examples": ["晚上好，欢迎光临。"]
+              }
+            ],
+            "exerciseType": "definition"
+          },
+          "difficulty": 1,
+          "timeLimit": 300,
+          "points": 30
+        },
+        {
+          "id": "greeting-challenge-2",
+          "type": "dialogue",
+          "title": "基础对话练习",
+          "content": {
+            "type": "dialogue",
+            "scenario": "两个人在街上相遇",
+            "characters": [
+              {
+                "id": "person1",
+                "name": "小明"
+              },
+              {
+                "id": "person2",
+                "name": "小红"
+              }
+            ],
+            "dialogue": [
+              {
+                "characterId": "person1",
+                "text": "你好！",
+                "isUserTurn": false
+              },
+              {
+                "characterId": "person2",
+                "isUserTurn": true,
+                "expectedResponses": ["你好！", "你好。", "嗨！"]
+              },
+              {
+                "characterId": "person1",
+                "text": "你叫什么名字？",
+                "isUserTurn": false
+              },
+              {
+                "characterId": "person2",
+                "isUserTurn": true,
+                "expectedResponses": ["我叫小红。", "我的名字是小红。", "小红。"]
+              }
+            ],
+            "userRole": "person2"
+          },
+          "difficulty": 2,
+          "timeLimit": 180,
+          "points": 50
+        }
+      ]
+    },
+    {
+      "id": "chinese-beginner-level-1-stage-2",
+      "title": "数字和日期",
+      "description": "学习基本的汉语数字和日期表达",
+      "order": 2,
+      "minScore": 70,
+      "challenges": [
+        {
+          "id": "numbers-challenge-1",
+          "type": "vocabulary",
+          "title": "数字词汇学习",
+          "content": {
+            "type": "vocabulary",
+            "words": [
+              {
+                "word": "一",
+                "definition": "One",
+                "pronunciation": "yī",
+                "examples": ["一个苹果"]
+              },
+              {
+                "word": "二",
+                "definition": "Two",
+                "pronunciation": "èr",
+                "examples": ["二楼"]
+              },
+              {
+                "word": "三",
+                "definition": "Three",
+                "pronunciation": "sān",
+                "examples": ["三本书"]
+              },
+              {
+                "word": "四",
+                "definition": "Four",
+                "pronunciation": "sì",
+                "examples": ["四个人"]
+              },
+              {
+                "word": "五",
+                "definition": "Five",
+                "pronunciation": "wǔ",
+                "examples": ["五分钟"]
+              }
+            ],
+            "exerciseType": "definition"
+          },
+          "difficulty": 1,
+          "timeLimit": 300,
+          "points": 30
+        },
+        {
+          "id": "numbers-challenge-2",
+          "type": "translation",
+          "title": "数字翻译练习",
+          "content": {
+            "type": "translation",
+            "sourceText": "I have three apples and two oranges.",
+            "targetLanguage": "zh",
+            "correctAnswer": "我有三个苹果和两个橙子。",
+            "alternativeAnswers": [
+              "我有3个苹果和2个橙子。"
+            ]
+          },
+          "difficulty": 2,
+          "timeLimit": 120,
+          "points": 40
+        }
+      ]
+    }
+  ],
+  "createdAt": "2025-11-20T10:00:00.000Z",
+  "updatedAt": "2025-11-20T10:00:00.000Z"
+}

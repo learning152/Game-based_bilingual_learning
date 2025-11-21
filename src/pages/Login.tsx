@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, Typography, message, Space } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { UserManager } from '../models/User';
+import { UserManager, User } from '../models/User';
 import { getUserLogger } from '../utils/logManager';
 
 // 获取用户操作日志记录器
@@ -63,9 +63,34 @@ const Login: React.FC = () => {
 
       message.success('登录成功！');
       
+      // 更新用户最后登录时间和连续登录记录
+      const now = new Date();
+      const lastLoginDate = new Date(user.lastLogin);
+      const isConsecutiveLogin = (
+        now.getDate() - lastLoginDate.getDate() === 1 ||
+        (now.getDate() === lastLoginDate.getDate() && now.getMonth() === lastLoginDate.getMonth() && now.getFullYear() === lastLoginDate.getFullYear())
+      );
+
+      user.lastLogin = now.toISOString();
+      if (isConsecutiveLogin) {
+        user.stats.streak.current += 1;
+        user.stats.streak.longest = Math.max(user.stats.streak.longest, user.stats.streak.current);
+      } else {
+        user.stats.streak.current = 1;
+      }
+      user.stats.streak.lastLoginDate = now.toISOString();
+
+      // 更新用户数据
+      UserManager.updateUser(user);
+
       // 存储登录状态到 localStorage
       localStorage.setItem('currentUser', JSON.stringify(user));
-      userLogger.debug('登录状态已保存到localStorage', { userId });
+      userLogger.debug('登录状态已保存到localStorage，用户数据已更新', { 
+        userId,
+        lastLogin: user.lastLogin,
+        currentStreak: user.stats.streak.current,
+        longestStreak: user.stats.streak.longest
+      });
       
       // 使用 React Router 导航跳转到个人资料页面
       navigate('/profile');
@@ -105,7 +130,7 @@ const Login: React.FC = () => {
       }
 
       // 创建新用户
-      const newUser = {
+      const newUser: User = {
         id: userId,
         username: values.username,
         email: values.email,
@@ -114,7 +139,24 @@ const Login: React.FC = () => {
         learningProgress: {
           english: 0,
           chinese: 0
-        }
+        },
+        gameLevels: {
+          unlockedLevelIds: [],
+          completedLevelIds: [],
+        },
+        achievements: {
+          unlockedAchievements: [],
+        },
+        stats: {
+          totalScore: 0,
+          correctAnswers: 0,
+          totalAttempts: 0,
+          totalTimeSpent: 0,
+          streak: {
+            current: 0,
+            longest: 0,
+          },
+        },
       };
 
       userLogger.debug('准备创建新用户', { 

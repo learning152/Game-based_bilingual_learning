@@ -1,0 +1,203 @@
+{
+  "id": "chinese-advanced-level-1",
+  "title": "汉语精通 - 第一关",
+  "description": "掌握高级汉语表达、文学阅读和写作技巧，适合中高级学习者",
+  "difficulty": "advanced",
+  "language": "chinese",
+  "icon": "chinese-3",
+  "estimatedTime": 60,
+  "tags": ["literature", "advanced grammar", "writing", "culture"],
+  "unlockConditions": [
+    {
+      "type": "level",
+      "target": "chinese-intermediate-level-1",
+      "value": 2,
+      "description": "完成汉语进阶第一关并获得至少2星"
+    },
+    {
+      "type": "score",
+      "target": "total",
+      "value": 500,
+      "description": "累计获得至少500分"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "points",
+      "value": 200,
+      "description": "完成高级第一关奖励"
+    },
+    {
+      "type": "achievement",
+      "value": "chinese_advanced_milestone",
+      "description": "获得汉语精通里程碑成就"
+    },
+    {
+      "type": "badge",
+      "value": "chinese_master",
+      "description": "获得汉语大师徽章"
+    }
+  ],
+  "stages": [
+    {
+      "id": "chinese-advanced-level-1-stage-1",
+      "title": "高级阅读理解",
+      "description": "阅读并理解中文文学作品片段",
+      "order": 1,
+      "minScore": 80,
+      "challenges": [
+        {
+          "id": "advanced-reading-challenge-1",
+          "type": "reading",
+          "title": "现代文学赏析",
+          "content": {
+            "type": "reading",
+            "text": "在那个安静的午后，阳光透过窗棂，在地板上投下斑驳的光影。老人坐在藤椅上，轻轻摇晃着，目光落在远处的山脉上。他的手指间夹着一支已经熄灭的烟，灰白的烟灰静静地躺在烟灰缸里，仿佛在诉说着岁月的故事。\n\n 时间过得真快啊，老人喃喃自语，声音低沉而沙哑，一转眼，六十年就过去了。\n\n窗外，树叶在微风中沙沙作响，几只麻雀在枝头跳跃，鸣叫声清脆悦耳。这样的场景，他已经看了一辈子，却从未感到厌倦。每一天，每一刻，都有新的发现，新的感受。\n\n他想起了年轻时的梦想，那些曾经熊熊燃烧的激情和野心。如今，它们都已化为记忆中的一缕烟，淡淡地飘散在时光的长河里。但他并不后悔，因为他知道，生命的意义不在于到达终点，而在于欣赏沿途的风景。",
+            "questions": [
+              {
+                "question": "这段文字中，老人正在做什么？",
+                "options": ["读书", "摇椅上休息", "做饭", "散步"],
+                "correctAnswer": "摇椅上休息"
+              },
+              {
+                "question": "文中提到老人的什么物品象征着岁月的流逝？",
+                "options": ["藤椅", "窗棂", "烟灰", "树叶"],
+                "correctAnswer": "烟灰"
+              },
+              {
+                "question": "老人对生命的理解是什么？",
+                "options": [
+                  "生命的意义在于实现梦想",
+                  "生命的意义在于欣赏沿途的风景",
+                  "生命的意义在于获得成就",
+                  "生命的意义在于回忆过去"
+                ],
+                "correctAnswer": "生命的意义在于欣赏沿途的风景"
+              }
+            ]
+          },
+          "difficulty": 4,
+          "timeLimit": 600,
+          "points": 60
+        },
+        {
+          "id": "advanced-reading-challenge-2",
+          "type": "translation",
+          "title": "文学作品翻译",
+          "content": {
+            "type": "translation",
+            "sourceText": "The old man gazed at the distant mountains, lost in memories of his youth. The dreams he once had were now just wisps of smoke in the river of time. Yet he felt no regret, for he had learned that the true meaning of life lies not in reaching the destination, but in appreciating the journey.",
+            "targetLanguage": "zh",
+            "correctAnswer": "老人凝视着远处的群山，沉浸在对自己青春岁月的回忆中。他曾经拥有的梦想，如今只是时光长河中的一缕烟。然而他并不后悔，因为他明白生命的真正意义不在于到达终点，而在于欣赏旅途。",
+            "alternativeAnswers": [
+              "老人望着远方的山脉，迷失在青春的记忆里。他曾经的梦想现在只是时间长河中的烟雾。但他并不后悔，因为他了解到生命的真正意义不在于抵达目的地，而在于欣赏旅程。",
+              "老人凝望着远处的山峦，陷入了对自己年轻时代的回忆。他往日的梦想如今只是时间长河中飘散的烟。然而他毫无遗憾，因为他已经领悟到生命的真谛不在于达到终点，而在于品味旅途的风景。"
+            ]
+          },
+          "difficulty": 5,
+          "timeLimit": 600,
+          "points": 80
+        }
+      ]
+    },
+    {
+      "id": "chinese-advanced-level-1-stage-2",
+      "title": "高级写作",
+      "description": "进行中文创意写作与表达练习",
+      "order": 2,
+      "minScore": 75,
+      "challenges": [
+        {
+          "id": "advanced-writing-challenge-1",
+          "type": "writing",
+          "title": "诗词创作",
+          "content": {
+            "type": "writing",
+            "prompt": "请以秋天为主题，创作一首现代诗，要求至少包含8行，并运用比喻、拟人等修辞手法。",
+            "minLength": 60,
+            "maxLength": 200,
+            "evaluationCriteria": [
+              "主题表达是否清晰",
+              "修辞手法运用是否恰当",
+              "语言是否优美流畅",
+              "意境是否深远"
+            ],
+            "sampleGoodAnswer": "金色的秋天悄然而至，\n树叶化作飞舞的蝴蝶，\n在微风中诉说着离别。\n阳光变得温柔而疏离，\n轻抚大地如情人低语。\n果实挂满枝头，\n是时光馈赠的礼物，\n静静等待收获的手掌。\n秋天啊，\n你是岁月的黄昏，\n也是生命的盛宴。"
+          },
+          "difficulty": 5,
+          "timeLimit": 900,
+          "points": 90
+        },
+        {
+          "id": "advanced-writing-challenge-2",
+          "type": "creative",
+          "title": "情境对话创作",
+          "content": {
+            "type": "creative",
+            "scenario": "一位年轻人在人生十字路口面临重要抉择：是继续安稳的工作，还是追逐不确定的梦想。请创作一段他与mentor的对话，展现内心挣扎与思考。",
+            "requirements": [
+              "对话要自然流畅",
+              "人物性格要鲜明",
+              "内容要有思想深度",
+              "语言要得体准确"
+            ],
+            "minLength": 200,
+            "maxLength": 500
+          },
+          "difficulty": 5,
+          "timeLimit": 1200,
+          "points": 100
+        }
+      ]
+    },
+    {
+      "id": "chinese-advanced-level-1-stage-3",
+      "title": "文化理解",
+      "description": "了解中国文化与传统思想",
+      "order": 3,
+      "minScore": 70,
+      "challenges": [
+        {
+          "id": "cultural-challenge-1",
+          "type": "quiz",
+          "title": "中国传统文化常识",
+          "content": {
+            "type": "quiz",
+            "questions": [
+              {
+                "question": "下列哪个节日被称为‘中国情人节’？",
+                "options": ["元宵节", "七夕节", "清明节", "中秋节"],
+                "correctAnswer": "七夕节"
+              },
+              {
+                "question": "‘仁、义、礼、智、信’是哪家思想的核心价值观？",
+                "options": ["道家", "法家", "墨家", "儒家"],
+                "correctAnswer": "儒家"
+              },
+              {
+                "question": "中国传统建筑中的‘四合院’代表了怎样的居住理念？",
+                "options": ["崇尚自然", "家族团结", "追求自由", "个人隐私"],
+                "correctAnswer": "家族团结"
+              },
+              {
+                "question": "‘天人合一’是哪种哲学思想的核心观念？",
+                "options": ["佛家思想", "道家思想", "法家思想", "阴阳学说"],
+                "correctAnswer": "道家思想"
+              },
+              {
+                "question": "中国传统绘画中的‘写意’强调的是什么？",
+                "options": ["精确描绘", "情感表达", "技巧展示", "色彩运用"],
+                "correctAnswer": "情感表达"
+              }
+            ]
+          },
+          "difficulty": 4,
+          "timeLimit": 300,
+          "points": 50
+        }
+      ]
+    }
+  ],
+  "createdAt": "2025-11-21T15:45:00.000Z",
+  "updatedAt": "2025-11-21T15:45:00.000Z"
+}

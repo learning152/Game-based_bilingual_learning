@@ -73,7 +73,7 @@ export class Logger {
       maxFiles: 10,
       bufferSize: 50,
       flushInterval: 5000,
-      logDir: './logs',
+      logDir: path.join(__dirname, '..', '..', 'logs'),
       ...config
     };
 
@@ -190,30 +190,37 @@ export class Logger {
    * @param message 日志消息
    * @param data 附加数据
    */
-  private log(level: LogLevel, message: string, data?: any): void {
-    // 检查日志级别
-    if (level < this.config.level) {
-      return;
-    }
-
-    const record: LogRecord = {
-      timestamp: new Date().toISOString(),
-      level,
-      category: this.config.category,
-      message,
-      data
-    };
-
-    // 添加到缓冲区
-    this.buffer.push(record);
-
-    // 如果缓冲区达到设定大小，则刷新
-    if (this.buffer.length >= this.config.bufferSize) {
-      this.flush().catch(err => {
-        console.error('刷新日志缓冲区失败:', err);
-      });
-    }
+private log(level: LogLevel, message: string, data?: any): void {
+  // 检查日志级别
+  if (level < this.config.level) {
+    return;
   }
+
+  const record: LogRecord = {
+    timestamp: new Date().toISOString(),
+    level,
+    category: this.config.category,
+    message,
+    data
+  };
+
+  // 简化用户操作日志记录
+  if (this.config.category === 'user' && level < LogLevel.WARN) {
+    // 只记录简化的用户操作信息
+    record.message = `用户操作: ${message}`;
+    delete record.data;
+  }
+
+  // 添加到缓冲区
+  this.buffer.push(record);
+
+  // 如果缓冲区达到设定大小，则刷新
+  if (this.buffer.length >= this.config.bufferSize) {
+    this.flush().catch(err => {
+      console.error('刷新日志缓冲区失败:', err);
+    });
+  }
+}
 
   /**
    * 刷新日志缓冲区到磁盘
@@ -249,48 +256,57 @@ export class Logger {
    * 将日志记录写入文件
    * @param records 日志记录数组
    */
-  private async writeToFile(records: LogRecord[]): Promise<void> {
-    if (records.length === 0 || this.isWriting) {
-      return;
-    }
-
-    this.isWriting = true;
-
-    try {
-      // 格式化日志记录
-      const logContent = records.map(record => {
-        const levelStr = LogLevel[record.level];
-        const dataStr = record.data ? JSON.stringify(record.data) : '';
-        return `[${record.timestamp}] [${levelStr}] [${record.category}] ${record.message} ${dataStr}`;
-      }).join(os.EOL) + os.EOL;
-      
-      // 检查日志文件大小是否超限
-      let fileSize = 0;
-      if (fs.existsSync(this.currentFile)) {
-        const stats = fs.statSync(this.currentFile);
-        fileSize = stats.size;
-      }
-      
-      // 如果文件大小超过限制，创建新文件
-      if (fileSize + this.totalWritten + logContent.length > this.config.maxFileSize) {
-        this.fileIndex++;
-        this.currentFile = this.getLogFilePath();
-        this.totalWritten = 0;
-        
-        // 检查并删除过多的日志文件
-        this.cleanupOldLogFiles();
-      }
-      
-      // 异步写入文件
-      await fs.promises.appendFile(this.currentFile, logContent, { encoding: 'utf8' });
-      this.totalWritten += logContent.length;
-    } catch (error) {
-      console.error('写入日志文件错误:', error);
-      throw error;
-    } finally {
-      this.isWriting = false;
-    }
+private async writeToFile(records: LogRecord[]): Promise<void> {
+  if (records.length === 0 || this.isWriting) {
+    return;
   }
+
+  this.isWriting = true;
+
+  try {
+    // 格式化日志记录
+    const logContent = records.map(record => {
+      const levelStr = LogLevel[record.level];
+      const dataStr = record.data ? JSON.stringify(record.data) : '';
+      let logLine = `[${record.timestamp}] [${levelStr}] [${record.category}] ${record.message}`;
+      
+      // 突出显示异常信息
+      if (record.level >= LogLevel.ERROR) {
+        logLine = `\x1b[31m${logLine}\x1b[0m`; // 红色文本
+      } else if (record.level === LogLevel.WARN) {
+        logLine = `\x1b[33m${logLine}\x1b[0m`; // 黄色文本
+      }
+      
+      return `${logLine} ${dataStr}`;
+    }).join(os.EOL) + os.EOL;
+    
+    // 检查日志文件大小是否超限
+    let fileSize = 0;
+    if (fs.existsSync(this.currentFile)) {
+      const stats = fs.statSync(this.currentFile);
+      fileSize = stats.size;
+    }
+    
+    // 如果文件大小超过限制，创建新文件
+    if (fileSize + this.totalWritten + logContent.length > this.config.maxFileSize) {
+      this.fileIndex++;
+      this.currentFile = this.getLogFilePath();
+      this.totalWritten = 0;
+      
+      // 检查并删除过多的日志文件
+      this.cleanupOldLogFiles();
+    }
+    
+    // 异步写入文件
+    await fs.promises.appendFile(this.currentFile, logContent, { encoding: 'utf8' });
+    this.totalWritten += logContent.length;
+  } catch (error) {
+    console.error('写入日志文件错误:', error);
+    throw error;
+  } finally {
+    this.isWriting = false;
+  }
+}
 
   /**
    * 清理旧的日志文件
@@ -345,7 +361,7 @@ export function getAppLogger(): Logger {
   if (!appLogger) {
     appLogger = new Logger({
       category: 'app',
-      level: LogLevel.INFO
+      level: LogLevel.ERROR
     });
   }
   return appLogger;
@@ -358,7 +374,7 @@ export function getUserLogger(): Logger {
   if (!userLogger) {
     userLogger = new Logger({
       category: 'user',
-      level: LogLevel.INFO
+      level: LogLevel.ERROR
     });
   }
   return userLogger;
@@ -371,7 +387,7 @@ export function getDataStorageLogger(): Logger {
   if (!dataStorageLogger) {
     dataStorageLogger = new Logger({
       category: 'data',
-      level: LogLevel.INFO
+      level: LogLevel.ERROR
     });
   }
   return dataStorageLogger;
@@ -384,10 +400,20 @@ export function getAiServiceLogger(): Logger {
   if (!aiServiceLogger) {
     aiServiceLogger = new Logger({
       category: 'ai',
-      level: LogLevel.DEBUG
+      level: LogLevel.ERROR
     });
   }
   return aiServiceLogger;
+}
+
+/**
+ * 获取性能监控日志记录器
+ */
+export function getPerformanceLogger(): Logger {
+  return new Logger({
+    category: 'performance',
+    level: LogLevel.INFO
+  });
 }
 
 /**

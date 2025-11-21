@@ -56,7 +56,7 @@ export class LogSearchIndex {
    * @param logDir 日志目录
    * @param indexPath 索引文件路径
    */
-  constructor(logDir: string = './logs', indexPath?: string) {
+  constructor(logDir: string = path.join(__dirname, '..', '..', 'logs'), indexPath?: string) {
     this.logDir = logDir;
     this.indexPath = indexPath || path.join(logDir, '.search-index.json');
     this.loadIndex();

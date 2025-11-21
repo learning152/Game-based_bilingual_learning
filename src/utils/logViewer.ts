@@ -37,7 +37,7 @@ export class LogViewer {
    * 构造函数
    * @param logDir 日志目录路径
    */
-  constructor(logDir: string = './logs') {
+  constructor(logDir: string = path.join(__dirname, '..', '..', 'logs')) {
     this.logDir = logDir;
   }
 

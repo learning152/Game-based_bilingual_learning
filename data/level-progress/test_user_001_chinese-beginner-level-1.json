@@ -1,0 +1,15 @@
+{
+  "userId": "test_user_001",
+  "levelId": "chinese-beginner-level-1",
+  "isUnlocked": false,
+  "currentStage": 0,
+  "completedStages": [],
+  "completedChallenges": [],
+  "totalScore": 0,
+  "bestScore": 0,
+  "stars": 0,
+  "attempts": 0,
+  "timeSpent": 0,
+  "lastPlayed": "2025-11-21T06:51:53.425Z",
+  "achievements": []
+}
