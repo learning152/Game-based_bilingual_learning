@@ -65,4 +65,53 @@ export class UserManager {
   static restoreUser(backupFilename: string, userId: string): boolean {
     return dataStorage.restoreFromBackup(backupFilename, this.CATEGORY, userId);
   }
+
+  static resetUserProgress(userId: string): boolean {
+    const user = this.getUser(userId);
+    if (!user) {
+      return false;
+    }
+
+    // 重置学习进度，但保留用户基本信息
+    user.learningProgress = {
+      english: 0,
+      chinese: 0
+    };
+
+    // 重置游戏关卡进度
+    user.gameLevels = {
+      unlockedLevelIds: [],
+      completedLevelIds: [],
+      currentLevelId: undefined,
+      lastPlayedAt: undefined
+    };
+
+    // 重置成就
+    user.achievements = {
+      unlockedAchievements: [],
+      lastUnlockedAt: undefined
+    };
+
+    // 重置统计数据
+    user.stats = {
+      totalScore: 0,
+      correctAnswers: 0,
+      totalAttempts: 0,
+      totalTimeSpent: 0,
+      streak: {
+        current: 0,
+        longest: 0,
+        lastLoginDate: undefined
+      }
+    };
+
+    // 更新最后登录时间
+    user.lastLogin = new Date().toISOString();
+
+    return this.updateUser(user);
+  }
+
+  static getUserById(userId: string): User | null {
+    return this.getUser(userId);
+  }
 }

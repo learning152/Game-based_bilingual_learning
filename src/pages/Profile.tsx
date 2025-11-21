@@ -5,6 +5,7 @@ import { User } from '../models/User';
 import { useNavigate } from 'react-router-dom';
 import { getUserLogger } from '../utils/logManager';
 import { performanceMonitor } from '../utils/performanceMonitor';
+import DataManagement from '../components/DataManagement';
 
 const { Title, Text } = Typography;
 const logger = getUserLogger();
@@ -139,6 +140,10 @@ const Profile: React.FC = () => {
           <LineChartOutlined style={{ fontSize: '64px', color: '#d9d9d9' }} />
           <p style={{ marginTop: '16px', color: '#8c8c8c' }}>暂无学习数据</p>
         </div>
+      </Card>
+
+      <Card title="游戏数据管理" style={{ marginTop: '16px', borderRadius: '8px' }}>
+        <DataManagement userId={user.id} username={user.username} />
       </Card>
     </div>
   );

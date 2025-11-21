@@ -2,7 +2,8 @@
  * AI服务连接模块
  * 用于封装与AI服务提供商的API交互
  */
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getAiServiceLogger } from '../logManager';
