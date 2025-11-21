@@ -7,5 +7,11 @@
   "learningProgress": {
     "english": 0,
     "chinese": 0
+  },
+  "gameLevels": {
+    "unlockedLevelIds": [
+      "chinese-beginner-level-1"
+    ],
+    "completedLevelIds": []
   }
 }

@@ -7,6 +7,7 @@ import { dataStorage } from '../utils/dataStorage';
  */
 export interface GameLevel {
   id: string;
+  name: string; // 添加 name 属性
   title: string;
   description: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';

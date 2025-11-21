@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameLevel, GameLevelManager, UserLevelProgress } from '../models/Level';
+import { getUserLogger } from '../utils/logManager';
+
+const logger = getUserLogger();
 
 interface LevelCardProps {
   level: GameLevel;
@@ -46,22 +49,38 @@ const LevelSelection: React.FC = () => {
   const navigate = useNavigate();
   const [levels, setLevels] = useState<GameLevel[]>([]);
   const [userProgress, setUserProgress] = useState<Record<string, UserLevelProgress>>({});
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
-    // 加载所有关卡
-    const allLevels = GameLevelManager.getLevelsByFilter();
+    // 获取当前登录用户
+    const currentUserStr = localStorage.getItem('currentUser');
+    if (!currentUserStr) {
+      logger.warn('未登录用户尝试访问关卡选择', {});
+      return;
+    }
+
+    const currentUser = JSON.parse(currentUserStr);
+    const currentUserId = currentUser.id;
+    setUserId(currentUserId);
+
+    // 加载关卡数据
+    const allLevels = GameLevelManager.getAllLevels();
     setLevels(allLevels);
 
-    // 模拟用户ID，实际应用中应从用户会话获取
-    const userId = 'test_user';
-
     // 加载用户进度
-    const progress = GameLevelManager.getAllUserProgress(userId);
+    const progress = GameLevelManager.getAllUserProgress(currentUserId);
     const progressMap = progress.reduce((acc, curr) => {
       acc[curr.levelId] = curr;
       return acc;
     }, {} as Record<string, UserLevelProgress>);
+    
     setUserProgress(progressMap);
+
+    logger.info('关卡选择页面加载完成', { 
+      userId: currentUserId, 
+      totalLevels: allLevels.length,
+      userProgressCount: progress.length 
+    });
   }, []);
 
   const handleLevelSelect = (levelId: string) => {
