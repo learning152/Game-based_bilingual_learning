@@ -368,88 +368,134 @@ const Game: React.FC = () => {
   };
 
   // 将 Challenge 转换为 GameItem 的辅助函数
-  const convertChallengeToGameItem = (challenge: Challenge): GameItem | null => {
+  const convertChallengeToGameItem = (challenge: Challenge): GameItem => {
     // 根据不同的挑战类型转换为对应的游戏项
-    if (challenge.type === 'wordCompletion' && challenge.content.type === 'wordCompletion') {
-      const wordContent = challenge.content;
-      return {
-        id: challenge.id,
-        word: wordContent.correctAnswer,
-        hint: wordContent.hints?.[0] || challenge.description || '',
-        category: 'challenge',
-        difficulty: challenge.difficulty <= 2 ? 'easy' : challenge.difficulty <= 3 ? 'medium' : 'hard',
-        audioUrl: undefined
-      } as GameWord;
-    } else if (challenge.type === 'translation' && challenge.content.type === 'translation') {
-      const translationContent = challenge.content;
-      return {
-        id: challenge.id,
-        chinesePhrase: translationContent.sourceText,
-        englishTranslation: translationContent.correctAnswer,
-        hint: challenge.description,
-        audioUrl: undefined
-      } as ChineseToEnglishWord;
+    switch (challenge.type) {
+      case 'wordCompletion':
+        if (challenge.content.type === 'wordCompletion') {
+          const wordContent = challenge.content;
+          return {
+            id: challenge.id,
+            word: wordContent.correctAnswer,
+            hint: wordContent.hints?.[0] || challenge.description || '',
+            category: 'challenge',
+            difficulty: challenge.difficulty <= 2 ? 'easy' : challenge.difficulty <= 3 ? 'medium' : 'hard',
+            audioUrl: undefined
+          } as GameWord;
+        }
+        break;
+      case 'translation':
+        if (challenge.content.type === 'translation') {
+          const translationContent = challenge.content;
+          return {
+            id: challenge.id,
+            chinesePhrase: translationContent.sourceText,
+            englishTranslation: translationContent.correctAnswer,
+            hint: challenge.description,
+            audioUrl: undefined
+          } as ChineseToEnglishWord;
+        }
+        break;
+      // 添加其他挑战类型的处理...
     }
     
-    // 其他类型的挑战暂时不支持，返回 null
-    logger.warn('不支持的挑战类型', { 
+    // 对于不支持的挑战类型，返回一个默认的GameItem
+    logger.warn('不支持的挑战类型，使用默认GameItem', { 
       challengeId: challenge.id, 
       type: challenge.type 
     });
-    return null;
+    return {
+      id: challenge.id,
+      word: '默认词语',
+      hint: challenge.description || '暂无提示',
+      category: 'challenge',
+      difficulty: 'medium',
+      audioUrl: undefined
+    } as GameWord;
   };
 
   const initializeGame = (level: GameLevel) => {
-    logger.info('初始化游戏', { levelId: level.id, levelName: level.name });
+    logger.info('开始初始化游戏', { levelId: level.id, levelName: level.name });
     performanceMonitor.startOperation('InitializeGame');
     
-    // 尝试加载保存的进度
-    const hasSavedProgress = loadGameProgress();
+    try {
+      if (!level) {
+        throw new Error('关卡数据无效');
+      }
+
+      // 尝试加载保存的进度
+      const hasSavedProgress = loadGameProgress();
+      
+      if (!hasSavedProgress) {
+        // 如果没有保存的进度，正常初始化游戏
+        // 从关卡的所有阶段中收集挑战项目
+        const levelChallenges: Challenge[] = [];
+        if (level.stages && level.stages.length > 0) {
+          level.stages.forEach(stage => {
+            if (stage.challenges && stage.challenges.length > 0) {
+              levelChallenges.push(...stage.challenges);
+            }
+          });
+        }
+        
+        logger.debug('收集到的挑战项目', { count: levelChallenges.length });
+        
+        if (levelChallenges.length === 0) {
+          logger.warn('关卡中没有挑战项目', { levelId: level.id });
+        }
+
+        // 将 Challenge 转换为 GameItem
+        const convertedItems: GameItem[] = levelChallenges
+          .map(challenge => convertChallengeToGameItem(challenge))
+          .filter((item): item is GameItem => item !== null);
+        
+        logger.debug('转换后的游戏项目', { count: convertedItems.length });
+        
+        // 如果关卡没有有效的挑战项，使用样例数据
+        const gameItems = convertedItems.length > 0 ? convertedItems : sampleWords;
+        
+        if (gameItems.length === 0) {
+          throw new Error('没有可用的游戏项目');
+        }
     
-    if (!hasSavedProgress) {
-      // 如果没有保存的进度，正常初始化游戏
-      // 从关卡的所有阶段中收集挑战项目
-      const levelChallenges: Challenge[] = [];
-      if (level.stages && level.stages.length > 0) {
-        level.stages.forEach(stage => {
-          if (stage.challenges && stage.challenges.length > 0) {
-            levelChallenges.push(...stage.challenges);
-          }
+        // 随机选择5个项目进行游戏
+        const shuffledItems = [...gameItems].sort(() => Math.random() - 0.5);
+        const selectedItems = shuffledItems.slice(0, Math.min(5, shuffledItems.length));
+        
+        if (selectedItems.length === 0) {
+          throw new Error('无法选择游戏项目');
+        }
+        
+        setGameItems(selectedItems);
+        setCurrentWordIndex(0);
+        setTotalScore(0);
+        setCompletedItems(0);
+        setGameStarted(true);
+        setStartTime(Date.now());
+        setTimeSpent(0);
+        setScore(0);
+        setLives(3);
+        
+        logger.info('游戏初始化完成', { 
+          levelId: level.id,
+          totalItems: selectedItems.length,
+          itemTypes: selectedItems.map(item => 'word' in item ? 'WordCompletion' : 'ChineseToEnglish')
         });
+      } else {
+        // 提示已恢复保存的游戏进度
+        message.success('已恢复上次游戏进度');
       }
       
-      // 将 Challenge 转换为 GameItem
-      const convertedItems: GameItem[] = levelChallenges
-        .map(challenge => convertChallengeToGameItem(challenge))
-        .filter((item): item is GameItem => item !== null);
-      
-      // 如果关卡没有有效的挑战项，使用样例数据
-      const gameItems = convertedItems.length > 0 ? convertedItems : sampleWords;
-  
-      // 随机选择5个项目进行游戏
-      const shuffledItems = [...gameItems].sort(() => Math.random() - 0.5);
-      const selectedItems = shuffledItems.slice(0, 5);
-      setGameItems(selectedItems);
-      setCurrentWordIndex(0);
-      setTotalScore(0);
-      setCompletedItems(0);
-      setGameStarted(true);
-      setStartTime(Date.now());
-      setTimeSpent(0);
-      setScore(0);
-      setLives(3);
-      
-      logger.info('游戏初始化完成', { 
-        levelId: level.id,
-        totalItems: selectedItems.length,
-        itemTypes: selectedItems.map(item => 'word' in item ? 'WordCompletion' : 'ChineseToEnglish')
+      performanceMonitor.endOperation('InitializeGame');
+    } catch (error) {
+      logger.error('游戏初始化失败', { 
+        levelId: level?.id, 
+        error: error instanceof Error ? error.message : String(error) 
       });
-    } else {
-      // 提示已恢复保存的游戏进度
-      message.success('已恢复上次游戏进度');
+      message.error('游戏初始化失败，请重试');
+      setGameStarted(false);
+      performanceMonitor.endOperation('InitializeGame');
     }
-    
-    performanceMonitor.endOperation('InitializeGame');
   };
 
   const handleItemCompleted = (score: number) => {
@@ -462,14 +508,12 @@ const Game: React.FC = () => {
     setTotalScore(prev => prev + score);
     setCompletedItems(prev => prev + 1);
     
-    setTimeout(() => {
-      if (currentWordIndex < gameItems.length - 1) {
-        setCurrentWordIndex(prev => prev + 1);
-      } else {
-        // 游戏结束
-        handleGameComplete();
-      }
-    }, 2000);
+    if (currentWordIndex < gameItems.length - 1) {
+      setCurrentWordIndex(prev => prev + 1);
+    } else {
+      // 游戏结束
+      handleGameComplete();
+    }
   };
   const handleGameComplete = () => {
     if (!userId || !currentLevel) {
@@ -648,8 +692,9 @@ const Game: React.FC = () => {
   };
 
   const currentItem = gameItems[currentWordIndex];
-  const progress = (completedItems / gameItems.length) * 100;
+  const progress = gameItems.length > 0 ? (completedItems / gameItems.length) * 100 : 0;
 
+  // 游戏未开始且没有游戏项目时显示开始界面
   if (!gameStarted && gameItems.length === 0) {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
@@ -671,7 +716,23 @@ const Game: React.FC = () => {
     );
   }
 
-  if (!gameStarted && completedItems === gameItems.length) {
+  // 游戏开始但游戏项目还未加载完成时显示加载界面
+  if (gameStarted && gameItems.length === 0) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center' }}>
+        <Card style={{ maxWidth: 600, margin: '0 auto' }}>
+          <Title level={2}>正在加载游戏...</Title>
+          <div style={{ margin: '30px 0' }}>
+            <Spin indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} />
+          </div>
+          <Text>正在准备游戏内容，请稍候...</Text>
+        </Card>
+      </div>
+    );
+  }
+
+  // 游戏完成时显示完成界面
+  if (!gameStarted && completedItems === gameItems.length && gameItems.length > 0) {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
         <Card style={{ maxWidth: 600, margin: '0 auto' }}>
@@ -721,9 +782,9 @@ const Game: React.FC = () => {
 
         <Divider style={{ margin: '24px 0' }} />
 
-        {currentItem ? (
-          <div style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {'word' in currentItem ? (
+        <div style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {currentItem ? (
+            'word' in currentItem ? (
               <WordCompletion
                 key={currentItem.id}
                 word={currentItem.word}
@@ -740,13 +801,11 @@ const Game: React.FC = () => {
                 audioUrl={currentItem.audioUrl}
                 onComplete={handleItemCompleted}
               />
-            )}
-          </div>
-        ) : (
-          <div style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            )
+          ) : (
             <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-          </div>
-        )}
+          )}
+        </div>
 
         <Divider style={{ margin: '24px 0' }} />
 
