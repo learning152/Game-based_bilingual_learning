@@ -26,18 +26,26 @@ export interface GameLevelProgress {
  * 负责管理用户的关卡进度、成就和统计数据
  */
 export class UserGameProgressManager {
+  private static initializedUsers: Set<string> = new Set();
+
   /**
    * 解锁用户的起始关卡
    * @param userId 用户ID
    * @returns 解锁的关卡ID数组
    */
   static initializeUserProgress(userId: string): string[] {
+    if (this.initializedUsers.has(userId)) {
+      return [];
+    }
+
     try {
       const user = UserManager.getUser(userId);
       if (!user) {
         logger.error('初始化用户进度失败：用户不存在', { userId });
         return [];
       }
+
+      this.initializedUsers.add(userId);
 
       // 获取所有无需解锁条件的起始关卡
       const allLevels = GameLevelManager.getAllLevels();
@@ -79,7 +87,7 @@ export class UserGameProgressManager {
           unlockedLevelCount: newlyUnlockedLevelIds.length,
           unlockedLevelIds: newlyUnlockedLevelIds
         });
-      } else {
+      } else if (newlyUnlockedLevelIds.length === 0) {
         logger.info('用户已有起始关卡，无需初始化', { 
           userId, 
           existingLevelCount: user.gameLevels.unlockedLevelIds.length 

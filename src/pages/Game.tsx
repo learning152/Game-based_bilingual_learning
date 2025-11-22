@@ -238,27 +238,38 @@ const Game: React.FC = () => {
   
   // 设置自动保存定时器
   useEffect(() => {
+    let id: NodeJS.Timeout | null = null;
+    
     // 只有在游戏开始且有用户ID和关卡ID时才启动自动保存
     if (gameStarted && userId && currentLevel) {
-      // 清除之前的定时器
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-      
       // 每60秒自动保存一次游戏进度
-      const id = setInterval(() => {
+      id = setInterval(() => {
         saveGameProgress();
       }, 60000);
       
       setIntervalId(id);
       
-      return () => {
-        clearInterval(id);
-      };
+      logger.info('自动保存定时器已启动', { 
+        userId,
+        levelId: currentLevel.id,
+        interval: '60秒'
+      });
+    } else {
+      // 清除定时器
+      if (intervalId) {
+        clearInterval(intervalId);
+        setIntervalId(null);
+      }
     }
-  }, [gameStarted, userId, currentLevel, saveGameProgress, intervalId]);
+    
+    return () => {
+      if (id) {
+        clearInterval(id);
+      }
+    };
+  }, [gameStarted, userId, currentLevel?.id, saveGameProgress]);
   
-  // 游戏页面加载
+  // 游戏页面加载 - 只在组件挂载时执行一次
   useEffect(() => {
     performanceMonitor.startOperation('GamePageLoad');
     logger.info('游戏页面加载', { timestamp: new Date().toISOString() });
@@ -287,18 +298,43 @@ const Game: React.FC = () => {
 
     performanceMonitor.endOperation('GamePageLoad');
     
-    // 组件卸载时保存进度
+    // 组件卸载时保存进度和清除定时器
     return () => {
-      if (gameStarted && userId && currentLevel) {
-        saveGameProgress();
+      const currentUserId = userId;
+      const currentGameLevel = currentLevel;
+      const isGameActive = gameStarted;
+      const timerId = intervalId;
+      
+      if (isGameActive && currentUserId && currentGameLevel) {
+        try {
+          const savePoint = {
+            levelId: currentGameLevel.id,
+            currentWordIndex,
+            gameItems,
+            totalScore,
+            completedItems,
+            score,
+            lives,
+            timeSpent: Math.floor((Date.now() - startTime) / 1000) + timeSpent,
+            timestamp: new Date().toISOString()
+          };
+          
+          localStorage.setItem(`gameProgress_${currentUserId}`, JSON.stringify(savePoint));
+          logger.info('组件卸载时保存游戏进度', { userId: currentUserId });
+        } catch (error) {
+          logger.error('组件卸载时保存进度失败', { 
+            userId: currentUserId,
+            error: error instanceof Error ? error.message : String(error)
+          });
+        }
       }
       
-      // 清除定时器
-      if (intervalId) {
-        clearInterval(intervalId);
+      if (timerId) {
+        clearInterval(timerId);
       }
     };
-  }, [navigate, saveGameProgress, intervalId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
 
   const loadGameLevels = (userId: string) => {
     logger.info('开始加载游戏关卡', { userId });
