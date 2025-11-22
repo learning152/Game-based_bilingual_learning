@@ -99,85 +99,6 @@ npm start
 npm run build
 npm start
 ```
-
-## 📂 项目结构
-
-```
-Game-based_bilingual_learning/
-├── src/                          # 源代码目录
-│   ├── components/              # React组件
-│   │   ├── ChineseToEnglish.tsx    # 中译英组件
-│   │   ├── EnglishToChinese.tsx    # 英译中组件
-│   │   ├── WordCompletion.tsx      # 单词补全组件
-│   │   ├── LearningProgress.tsx    # 学习进度组件
-│   │   └── Navigation.tsx          # 导航组件
-│   ├── pages/                   # 页面组件
-│   │   ├── Login.tsx               # 登录页
-│   │   ├── Courses.tsx             # 课程选择页
-│   │   ├── Game.tsx                # 游戏主页面
-│   │   └── Profile.tsx             # 个人中心
-│   ├── models/                  # 数据模型
-│   │   ├── User.ts                 # 用户模型
-│   │   ├── Course.ts               # 课程模型
-│   │   ├── Progress.ts             # 进度模型
-│   │   └── Achievement.ts          # 成就模型
-│   ├── utils/                   # 工具函数
-│   │   ├── ai/                     # AI相关工具
-│   │   │   ├── aiService.ts        # AI服务接口
-│   │   │   ├── contentGenerator.ts # 内容生成器
-│   │   │   ├── contentCache.ts     # 内容缓存
-│   │   │   └── aiContentManager.ts # AI内容管理器
-│   │   ├── dataStorage.ts          # 数据存储工具
-│   │   ├── logger.ts               # 日志记录工具
-│   │   └── learningStats.ts        # 学习统计工具
-│   ├── styles/                  # 样式文件
-│   │   ├── global.css              # 全局样式
-│   │   └── theme.ts                # 主题配置
-│   ├── App.tsx                  # 应用根组件
-│   └── index.tsx                # 应用入口
-├── data/                        # 数据存储目录
-│   ├── users/                      # 用户数据
-│   ├── courses/                    # 课程数据
-│   ├── lessons/                    # 关卡数据
-│   ├── achievements/               # 成就数据
-│   └── backups/                    # 备份数据
-├── logs/                        # 日志文件目录
-├── config/                      # 配置文件目录
-│   ├── ai-service.example.json     # AI服务配置示例
-│   └── baidu-api-example.py        # 百度API示例
-├── .comate/                     # 开发文档目录
-│   ├── plan/                       # 执行计划文档
-│   ├── 文档/                       # 设计文档
-│   └── rules/                      # 开发规范
-├── dist/                        # 编译输出目录
-├── main.ts                      # Electron主进程
-├── package.json                 # 项目配置
-├── tsconfig.json                # TypeScript配置
-├── webpack.config.js            # Webpack配置
-└── README.md                    # 项目说明文档
-```
-
-## 📖 使用指南
-
-### 学习模式选择
-1. 登录后进入课程选择页面
-2. 选择学习方向（中→英 或 英→中）
-3. 选择难度级别（初级/中级/高级）
-4. 点击开始学习
-
-### 闯关流程
-1. **查看题目**：阅读题目要求和提示
-2. **输入答案**：在输入框中输入答案
-3. **提交判断**：点击提交按钮进行判断
-4. **查看反馈**：查看正确答案和得分
-5. **下一关**：继续下一关卡或返回课程
-
-### 数据管理
-1. **导出数据**：个人中心 → 数据管理 → 导出数据
-2. **导入数据**：个人中心 → 数据管理 → 导入数据
-3. **备份管理**：个人中心 → 数据管理 → 备份列表
-4. **重新开始**：个人中心 → 游戏设置 → 重新开始游戏
-
 ### 学习建议
 - 每天至少学习20分钟，保持连续性
 - 先完成基础关卡，循序渐进
@@ -185,49 +106,13 @@ Game-based_bilingual_learning/
 - 定期查看学习报告，了解进度
 - 参与每日挑战，获得额外奖励
 
+### 截图
+![截图1](./data/image/课程.png)
+![截图2](./data/image/单词游戏页面.png)
+![截图3](./data/image/单词游戏挑战.png)
+![截图4](./data/image/关卡挑战.png)
+![截图5](./data/image/个人中心.png)
 
-## ❓ 常见问题
-
-### Q: 应用启动失败？
-**A:** 检查Node.js版本是否>=18，确保已执行`npm install`安装依赖。
-
-### Q: AI功能不可用？
-**A:** 检查`config/ai-service.json`配置是否正确，或使用本地题库模式（自动降级）。
-
-### Q: 数据存储在哪里？
-**A:** 所有数据存储在`./data/`目录下，包括用户数据、课程数据和备份数据。
-
-### Q: 如何备份学习数据？
-**A:** 应用每天自动备份，也可以在个人中心手动导出数据。
-
-### Q: 支持离线使用吗？
-**A:** 完全支持！所有核心功能都可以离线使用，无需网络连接。
-
-### Q: 如何切换学习方向？
-**A:** 在课程选择页面可以随时切换中→英或英→中学习方向。
-
-### Q: 数据会被上传吗？
-**A:** 不会！所有数据完全本地存储，我们不会上传任何用户数据。
-
-## 📊 项目状态
-
-- **当前版本**：v1.0.0
-- **开发阶段**：第二阶段（核心功能开发）
-- **完成度**：约45%
-- **预计发布**：2025年4月
-
-
-## 📄 许可证
-
-本项目采用 ISC 许可证。
-
-## 📮 联系方式
-
-- **项目仓库**：[GitHub Repository URL]
-- **问题反馈**：[GitHub Issues URL]
-- **开发者**：Zulu Team
-
----
 
 **最后更新**：2025-11-20  
 **文档版本**：v1.0.0
