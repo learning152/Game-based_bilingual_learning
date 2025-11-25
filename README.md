@@ -161,20 +161,6 @@ npm start
 - 代码审查：基于 PR 的代码质量把控
 - 文档协作：Markdown 标准 + 自动生成
 
-## 🤝 贡献指南
-
-我们欢迎所有形式的贡献，无论是新功能、bug 修复还是文档改进。请遵循以下步骤：
-
-1. Fork 项目
-2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 将您的更改推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启一个 Pull Request
-
-## 📄 许可证
-
-本项目基于 MIT 许可证开源 - 查看 [LICENSE](LICENSE) 文件了解更多细节
-
 ---
 
 **最后更新**：2025-11-25  
